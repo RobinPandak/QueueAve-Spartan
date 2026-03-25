@@ -19,11 +19,11 @@ export async function updateSession(request: NextRequest) {
     }
   )
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (!user && (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/events'))) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
-  if (!user && request.nextUrl.pathname.startsWith('/events')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (user && request.nextUrl.pathname.startsWith('/login')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
   return supabaseResponse
 }
