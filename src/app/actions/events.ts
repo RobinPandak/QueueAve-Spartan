@@ -65,3 +65,13 @@ export async function createEvent(data: WizardData) {
 
   redirect(`/events/${event.id}`)
 }
+
+export async function updateEvent(id: string, data: { name: string; date: string; venue?: string; description?: string }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  await supabase.from('spartan_events')
+    .update({ name: data.name, date: data.date, venue: data.venue || null, description: data.description || null })
+    .eq('id', id).eq('organizer_id', user.id)
+  redirect(`/events/${id}`)
+}
