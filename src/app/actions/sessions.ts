@@ -3,10 +3,17 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
-export async function createSession(eventId: string, templateId: string, groupId: string | null, sessionDate: string, notes: string) {
-  const supabase = await createClient()
+async function assertOwner(supabase: Awaited<ReturnType<typeof createClient>>, eventId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+  const { data: event } = await supabase.from('spartan_events').select('organizer_id').eq('id', eventId).single()
+  if (!event || event.organizer_id !== user.id) throw new Error('Unauthorized')
+  return user
+}
+
+export async function createSession(eventId: string, templateId: string, groupId: string | null, sessionDate: string, notes: string) {
+  const supabase = await createClient()
+  await assertOwner(supabase, eventId)
   const { data, error } = await supabase.from('spartan_sessions')
     .insert({ event_id: eventId, template_id: templateId, group_id: groupId || null, session_date: sessionDate, notes: notes || null })
     .select().single()
@@ -23,8 +30,7 @@ type ResultEntry = {
 
 export async function saveResults(sessionId: string, eventId: string, entries: ResultEntry[]) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  await assertOwner(supabase, eventId)
 
   const rows = entries
     .filter(e => e.value !== null && e.value !== '')
