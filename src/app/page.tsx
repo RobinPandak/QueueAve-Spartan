@@ -1,7 +1,8 @@
-export default function Home() {
-  return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <p>Spartan by QueueAve</p>
-    </div>
-  )
+import { createClient } from '@/lib/supabase/server'
+import LandingClient from './landing-client'
+
+export default async function HomePage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return <LandingClient user={!!user} />
 }
