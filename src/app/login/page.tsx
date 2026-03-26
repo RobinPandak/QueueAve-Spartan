@@ -1,10 +1,12 @@
 import { loginWithGoogle } from '@/app/actions/auth'
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>
 }) {
+  const { error } = await searchParams
+
   return (
     <div
       className="min-h-screen flex items-center justify-center"
@@ -33,6 +35,11 @@ export default function LoginPage({
         <p className="text-sm mb-8" style={{ color: 'var(--muted)' }}>
           by QueueAve
         </p>
+        {error && (
+          <p className="text-sm mb-4 text-red-500">
+            Sign in failed. Please try again.
+          </p>
+        )}
         <form action={loginWithGoogle}>
           <button
             type="submit"
