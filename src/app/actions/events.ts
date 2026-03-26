@@ -28,7 +28,7 @@ export async function createEvent(data: WizardData) {
       venue: data.venue || null,
       description: data.description || null,
       organizer_id: user.id,
-      status: 'draft',
+      status: 'open',
     })
     .select()
     .single()
