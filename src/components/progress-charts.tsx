@@ -1,6 +1,6 @@
 'use client'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { getTrend, TREND_COLOR, TREND_LABEL, type MetricType } from '@/lib/progress'
+import { getTrendFromValues, TREND_COLOR, TREND_LABEL, type MetricType } from '@/lib/progress'
 
 type ChartEntry = { date: string; value: number; label: string }
 type ChartData = { metric: { id: string; name: string; type: string; unit?: string | null }; data: ChartEntry[] }
@@ -13,10 +13,7 @@ export function ProgressCharts({ chartData }: { chartData: ChartData[] }) {
   return (
     <div className="space-y-8">
       {chartData.map(({ metric, data }) => {
-        const trend = getTrend(
-          data.map(d => ({ sessionDate: d.date, sessionId: '', timeValue: null, countValue: metric.type === 'count' ? d.value : null, passValue: metric.type === 'pass_fail' ? d.value === 1 : null })),
-          metric.type as MetricType
-        )
+        const trend = getTrendFromValues(data.map(d => d.value), metric.type as MetricType)
         return (
           <div key={metric.id} className="p-5 rounded-2xl border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="flex items-center justify-between mb-4">

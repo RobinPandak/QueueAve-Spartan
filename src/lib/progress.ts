@@ -48,5 +48,17 @@ export function getTrend(results: MetricResult[], type: MetricType): 'improving'
   return delta > 0 ? 'improving' : 'declining'
 }
 
+/** Get trend from pre-computed numeric values (avoids MetricResult reconstruction) */
+export function getTrendFromValues(values: number[], type: MetricType): 'improving' | 'flat' | 'declining' {
+  if (values.length < 2) return 'flat'
+  const recent = values.slice(-3)
+  const first = recent[0]
+  const last = recent[recent.length - 1]
+  const delta = last - first
+  if (Math.abs(delta) < 1e-9) return 'flat'
+  if (type === 'time') return delta < 0 ? 'improving' : 'declining'
+  return delta > 0 ? 'improving' : 'declining'
+}
+
 export const TREND_COLOR = { improving: '#00BFA5', flat: '#FFB800', declining: '#FF6B4A' }
 export const TREND_LABEL = { improving: '↑ Improving', flat: '→ No change', declining: '↓ Declining' }
