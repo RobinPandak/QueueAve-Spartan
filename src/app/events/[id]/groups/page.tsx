@@ -75,7 +75,13 @@ export default async function GroupsPage({ params }: { params: Promise<{ id: str
                     Save
                   </button>
                 </form>
-              ) : (
+              )}
+              {isOwner && (
+                <form action={async () => { 'use server'; await deleteGroup(group.id, id) }} className="mt-1 flex justify-end">
+                  <button type="submit" className="text-xs cursor-pointer" style={{ color: 'var(--muted)' }}>Remove</button>
+                </form>
+              )}
+              {!isOwner && (
                 <div>
                   <h3 className="font-semibold text-base">{group.name}</h3>
                   {group.start_time && (
