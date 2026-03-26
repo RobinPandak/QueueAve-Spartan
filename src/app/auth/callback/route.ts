@@ -15,8 +15,8 @@ export async function GET(request: Request) {
       )
       await service.from('organizers').upsert({
         id: data.user.id,
-        display_name: data.user.user_metadata.full_name ?? data.user.email ?? 'Organizer',
-        avatar_url: data.user.user_metadata.avatar_url ?? null,
+        name: data.user.user_metadata.full_name ?? data.user.email ?? 'Organizer',
+        email: data.user.email ?? null,
       }, { onConflict: 'id', ignoreDuplicates: true })
       return NextResponse.redirect(`${origin}/dashboard`)
     }
