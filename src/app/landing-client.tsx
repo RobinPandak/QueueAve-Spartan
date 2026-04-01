@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, TrendingUp, Users, ClipboardList, BarChart2, Menu, X, LogOut } from 'lucide-react'
+import { ArrowRight, TrendingUp, Users, ClipboardList, BarChart2, Menu, X, LogOut, Moon, Sun } from 'lucide-react'
 import { logout } from '@/app/actions/auth'
 
 /* ─── Intersection observer hook ─── */
@@ -196,7 +196,23 @@ export default function LandingClient({ user }: { user: boolean }) {
   const [activeStep, setActiveStep] = useState(0)
   const [navSolid, setNavSolid] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [dark, setDark] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    const stored = localStorage.getItem('theme')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isDark = stored ? stored === 'dark' : prefersDark
+    setDark(isDark)
+    document.documentElement.classList.toggle('dark', isDark)
+  }, [])
+
+  const toggleDark = () => {
+    const next = !dark
+    setDark(next)
+    document.documentElement.classList.toggle('dark', next)
+    localStorage.setItem('theme', next ? 'dark' : 'light')
+  }
 
   const ctaHref = user ? '/dashboard' : '/login'
 
@@ -260,14 +276,28 @@ export default function LandingClient({ user }: { user: boolean }) {
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-1">
+            {!user && (
+              <>
+                <Link href="#how-it-works" className="px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-70" style={{ color: 'var(--muted)' }}>Explore</Link>
+                <Link href="/login" className="px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-70" style={{ color: 'var(--muted)' }}>Player Lookup</Link>
+              </>
+            )}
+            <button
+              onClick={toggleDark}
+              className="p-2 rounded-lg transition-colors hover:opacity-70 cursor-pointer"
+              style={{ color: 'var(--muted)' }}
+              aria-label="Toggle dark mode"
+            >
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             {user ? (
               <>
-                <Link href="/dashboard" className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: '#FF6B4A' }}>
+                <Link href="/dashboard" className="ml-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white" style={{ backgroundColor: '#FF6B4A' }}>
                   Dashboard
                 </Link>
                 <form action={logout}>
-                  <button type="submit" className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border text-sm font-medium cursor-pointer transition-colors hover:opacity-80" style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}>
+                  <button type="submit" className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-full border text-sm font-medium cursor-pointer transition-colors hover:opacity-80" style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}>
                     <LogOut className="w-3.5 h-3.5" />
                     Sign out
                   </button>
@@ -275,8 +305,8 @@ export default function LandingClient({ user }: { user: boolean }) {
               </>
             ) : (
               <>
-                <Link href="/login" className="px-4 py-2 text-sm font-medium transition-colors hover:opacity-70" style={{ color: 'var(--muted)' }}>Sign in</Link>
-                <Link href={ctaHref} className="group px-5 py-2.5 rounded-xl text-sm font-semibold text-white inline-flex items-center gap-2 transition-all hover:opacity-90 active:scale-[0.97]" style={{ backgroundColor: '#FF6B4A' }}>
+                <Link href="/login" className="px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-70" style={{ color: 'var(--muted)' }}>Sign in</Link>
+                <Link href={ctaHref} className="group ml-1 px-5 py-2.5 rounded-full text-sm font-semibold text-white inline-flex items-center gap-2 transition-all hover:opacity-90 active:scale-[0.97]" style={{ backgroundColor: '#FF6B4A' }}>
                   Get Started
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
@@ -298,11 +328,25 @@ export default function LandingClient({ user }: { user: boolean }) {
         {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-b px-6 pb-5 pt-2 space-y-1" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+            {!user && (
+              <>
+                <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors" style={{ color: 'var(--muted)' }}>Explore</Link>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors" style={{ color: 'var(--muted)' }}>Player Lookup</Link>
+              </>
+            )}
+            <button
+              onClick={() => { toggleDark(); setMobileMenuOpen(false) }}
+              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer"
+              style={{ color: 'var(--muted)' }}
+            >
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {dark ? 'Light mode' : 'Dark mode'}
+            </button>
             {user ? (
               <>
-                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-semibold text-white text-center" style={{ backgroundColor: '#FF6B4A' }}>Dashboard</Link>
+                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-full text-sm font-semibold text-white text-center" style={{ backgroundColor: '#FF6B4A' }}>Dashboard</Link>
                 <form action={logout}>
-                  <button type="submit" className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border text-sm cursor-pointer" style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}>
+                  <button type="submit" className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full border text-sm cursor-pointer" style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}>
                     <LogOut className="w-3.5 h-3.5" /> Sign out
                   </button>
                 </form>
@@ -310,7 +354,7 @@ export default function LandingClient({ user }: { user: boolean }) {
             ) : (
               <>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors" style={{ color: 'var(--muted)' }}>Sign in</Link>
-                <Link href={ctaHref} onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-semibold text-white text-center" style={{ backgroundColor: '#FF6B4A' }}>Get Started</Link>
+                <Link href={ctaHref} onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-full text-sm font-semibold text-white text-center" style={{ backgroundColor: '#FF6B4A' }}>Get Started</Link>
               </>
             )}
           </div>
