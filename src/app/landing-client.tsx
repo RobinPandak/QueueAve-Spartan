@@ -269,10 +269,11 @@ export default function LandingClient({ user }: { user: boolean }) {
       >
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <img src="/logo.svg" alt="Spartan" width="32" height="32" />
-            <span className="font-display font-extrabold text-lg" style={{ color: 'var(--fg)' }}>Spartan</span>
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--subtle)', color: 'var(--muted)' }}>by QueueAve</span>
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.svg" alt="QueueAve" width="32" height="32" />
+            <span className="font-display font-extrabold text-lg">
+              <span style={{ color: 'var(--fg)' }}>Queue</span><span style={{ color: '#FF6B4A' }}>Ave</span>
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -565,9 +566,10 @@ export default function LandingClient({ user }: { user: boolean }) {
       <footer className="py-10 px-6 border-t" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="Spartan" width="24" height="24" />
-            <span className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Spartan</span>
-            <span className="text-xs" style={{ color: 'var(--muted)' }}>by QueueAve</span>
+            <img src="/logo.svg" alt="QueueAve" width="24" height="24" />
+            <span className="text-sm font-semibold">
+              <span style={{ color: 'var(--fg)' }}>Queue</span><span style={{ color: '#FF6B4A' }}>Ave</span>
+            </span>
           </div>
           <p className="text-xs" style={{ color: 'var(--muted)' }}>
             Training session management for obstacle course coaches.
