@@ -267,7 +267,7 @@ export default function LandingClient({ user }: { user: boolean }) {
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={navSolid ? { backgroundColor: 'rgba(255,248,245,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border)' } : {}}
       >
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-5 py-3.5 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.svg" alt="QueueAve" width="32" height="32" />
