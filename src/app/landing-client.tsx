@@ -270,7 +270,7 @@ export default function LandingClient({ user }: { user: boolean }) {
         <div className="max-w-6xl mx-auto px-5 py-3.5 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.svg" alt="QueueAve" width="32" height="32" />
+            <img src="/logo.svg" alt="QueueAve" width="28" height="28" />
             <span className="font-display font-extrabold text-lg">
               <span style={{ color: 'var(--fg)' }}>Queue</span><span style={{ color: '#FF6B4A' }}>Ave</span>
             </span>
@@ -563,10 +563,10 @@ export default function LandingClient({ user }: { user: boolean }) {
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="py-10 px-6 border-t" style={{ borderColor: 'var(--border)' }}>
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="border-t" style={{ borderColor: 'var(--border)' }}>
+        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="QueueAve" width="24" height="24" />
+            <img src="/logo.svg" alt="QueueAve" width="28" height="28" />
             <span className="text-sm font-semibold">
               <span style={{ color: 'var(--fg)' }}>Queue</span><span style={{ color: '#FF6B4A' }}>Ave</span>
             </span>
