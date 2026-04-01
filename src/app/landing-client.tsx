@@ -269,9 +269,9 @@ export default function LandingClient({ user }: { user: boolean }) {
       >
         <div className="max-w-6xl mx-auto px-5 py-3.5 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.svg" alt="QueueAve" width="28" height="28" />
-            <span className="font-display font-extrabold text-lg">
+          <Link href="/" className="flex items-center gap-1.5">
+            <img src="/logo.svg" alt="QueueAve" width="36" height="36" />
+            <span className="font-display text-xl font-extrabold tracking-tight">
               <span style={{ color: 'var(--fg)' }}>Queue</span><span style={{ color: '#FF6B4A' }}>Ave</span>
             </span>
           </Link>
@@ -565,15 +565,13 @@ export default function LandingClient({ user }: { user: boolean }) {
       {/* ─── Footer ─── */}
       <footer className="border-t" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="QueueAve" width="28" height="28" />
-            <span className="text-sm font-semibold">
+          <div className="flex items-center gap-1.5">
+            <img src="/logo.svg" alt="QueueAve" width="36" height="36" />
+            <span className="font-display text-xl font-extrabold tracking-tight">
               <span style={{ color: 'var(--fg)' }}>Queue</span><span style={{ color: '#FF6B4A' }}>Ave</span>
             </span>
           </div>
-          <p className="text-xs" style={{ color: 'var(--muted)' }}>
-            Training session management for obstacle course coaches.
-          </p>
+          <p className="text-xs" style={{ color: 'var(--muted)' }}>Always free.</p>
         </div>
       </footer>
 
