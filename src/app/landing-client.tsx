@@ -483,11 +483,11 @@ export default function LandingClient({ user }: { user: boolean }) {
               </blockquote>
               <div className="mt-6 flex items-center justify-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(255,107,74,0.12)' }}>
-                  <span className="text-sm font-bold" style={{ color: '#FF6B4A' }}>CJ</span>
+                  <span className="text-sm font-bold" style={{ color: '#FF6B4A' }}>ER</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Coach Jana</p>
-                  <p className="text-xs" style={{ color: 'var(--muted)' }}>OCR Training Manila</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Erl Ruanto</p>
+                  <p className="text-xs" style={{ color: 'var(--muted)' }}>Spartan Ambassador</p>
                 </div>
               </div>
             </div>
