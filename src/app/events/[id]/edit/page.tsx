@@ -13,6 +13,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
     await updateEvent(id, {
       name: formData.get('name') as string,
       date: formData.get('date') as string,
+      start_time: formData.get('start_time') as string,
       venue: formData.get('venue') as string,
       description: formData.get('description') as string,
     })
@@ -31,6 +32,12 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
         <div>
           <label className="block text-sm font-medium mb-1.5">Date</label>
           <input name="date" type="date" defaultValue={event.date} required
+            className="w-full px-4 py-2.5 rounded-xl border text-sm"
+            style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--fg)' }} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1.5">Start time <span className="font-normal text-xs" style={{ color: 'var(--muted)' }}>optional</span></label>
+          <input name="start_time" type="time" defaultValue={event.start_time ?? ''}
             className="w-full px-4 py-2.5 rounded-xl border text-sm"
             style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--fg)' }} />
         </div>
