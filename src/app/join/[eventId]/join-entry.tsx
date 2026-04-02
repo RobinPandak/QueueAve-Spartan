@@ -215,22 +215,24 @@ export function JoinEntry({ event, groups }: Props) {
                   className="w-full text-center text-sm cursor-pointer hover:opacity-75 transition-opacity"
                   style={{ color: '#FF6B4A' }}
                 >
-                  Find profile by email instead
+                  Rejoin with email instead
                 </button>
               </div>
             )}
 
             {/* ── Email lookup view ── */}
             {view === 'email' && (
-              <form onSubmit={handleEmailLookup} className="space-y-3">
+              <form onSubmit={handleEmailLookup} className="space-y-4">
                 <button type="button" onClick={() => setView('entry')} className="flex items-center gap-1.5 text-sm cursor-pointer hover:opacity-75 transition-opacity" style={{ color: '#6B6B6B' }}>
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
-                <p className="text-sm font-semibold" style={{ color: '#1A1A1A' }}>Find your profile</p>
+                <p className="text-sm text-center" style={{ color: '#6B6B6B' }}>
+                  Enter the email you used when you first joined.
+                </p>
                 <input
                   type="email"
                   required
-                  placeholder="Your registered email"
+                  placeholder="your@email.com"
                   className={inputCls}
                   style={inputSty}
                   value={emailQuery}
@@ -249,7 +251,7 @@ export function JoinEntry({ event, groups }: Props) {
                 >
                   {emailLoading
                     ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Looking up...</>
-                    : 'Find my profile'}
+                    : 'Rejoin Event'}
                 </button>
               </form>
             )}
