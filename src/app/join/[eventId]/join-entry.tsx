@@ -92,16 +92,21 @@ export function JoinEntry({ event, groups }: Props) {
     const socialHandle = rawHandle
       ? `${platform}:${rawHandle.startsWith('@') ? rawHandle : '@' + rawHandle}`
       : null
-    const result = await registerParticipant(
-      event.id,
-      (fd.get('name') as string).trim(),
-      (fd.get('group_id') as string) || null,
-      (fd.get('email') as string).trim() || null,
-      (fd.get('phone') as string).trim() || null,
-      socialHandle,
-    )
-    if (result?.error) {
-      setError(result.error)
+    try {
+      const result = await registerParticipant(
+        event.id,
+        (fd.get('name') as string).trim(),
+        (fd.get('group_id') as string) || null,
+        (fd.get('email') as string).trim() || null,
+        (fd.get('phone') as string).trim() || null,
+        socialHandle,
+      )
+      if (result?.error) {
+        setError(result.error)
+      }
+    } catch {
+      setError('Something went wrong. Please try again.')
+    } finally {
       setLoading(false)
     }
   }
@@ -110,12 +115,17 @@ export function JoinEntry({ event, groups }: Props) {
     e.preventDefault()
     setEmailError(null)
     setEmailLoading(true)
-    const result = await findParticipantByEmail(event.id, emailQuery)
-    if ('error' in result) {
-      setEmailError(result.error)
+    try {
+      const result = await findParticipantByEmail(event.id, emailQuery)
+      if ('error' in result) {
+        setEmailError(result.error)
+      } else {
+        router.push(`/p/${result.id}`)
+      }
+    } catch {
+      setEmailError('Something went wrong. Please try again.')
+    } finally {
       setEmailLoading(false)
-    } else {
-      router.push(`/p/${result.id}`)
     }
   }
 
@@ -327,7 +337,7 @@ export function JoinEntry({ event, groups }: Props) {
                   style={{ backgroundColor: '#FF6B4A', boxShadow: '0 4px 14px rgba(255,107,74,.25)' }}
                 >
                   {loading
-                    ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Registering...</>
+                    ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Join Event</>
                     : 'Join Event'}
                 </button>
               </form>
