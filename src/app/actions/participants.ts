@@ -20,6 +20,7 @@ export async function registerParticipant(
   socialHandle: string | null = null,
 ): Promise<{ error: string } | never> {
   if (!name.trim()) return { error: 'Name is required.' }
+  if (!email?.trim()) return { error: 'Email is required.' }
 
   const service = serviceClient()
 
@@ -62,6 +63,18 @@ export async function toggleCheckIn(participantId: string, eventId: string, chec
     })
     .eq('id', participantId)
   revalidatePath(`/events/${eventId}/participants`)
+}
+
+export async function findParticipantByEmail(eventId: string, email: string): Promise<{ id: string } | { error: string }> {
+  const service = serviceClient()
+  const { data } = await service
+    .from('spartan_participants')
+    .select('id')
+    .eq('event_id', eventId)
+    .ilike('email', email.trim())
+    .maybeSingle()
+  if (!data) return { error: 'No participant found with that email for this event.' }
+  return { id: data.id }
 }
 
 export async function reassignGroup(participantId: string, eventId: string, groupId: string | null) {
