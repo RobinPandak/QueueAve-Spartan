@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Check, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Sparkles, CalendarDays, MapPin, Users, ClipboardList } from 'lucide-react'
 import { createEvent } from '@/app/actions/events'
 import SlideIn from '@/components/slide-in'
 import PlacesAutocomplete from '@/components/places-autocomplete'
@@ -105,7 +105,94 @@ export function EventWizard() {
   }
 
   return (
-    <div>
+    <div className="lg:grid lg:grid-cols-[1fr_260px] lg:gap-10">
+
+      {/* ── Live preview (right column) ── */}
+      <div className="hidden lg:block order-last">
+        <div className="sticky top-24">
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--muted)' }}>Preview</p>
+          <div className="rounded-2xl border p-5 space-y-4 transition-all duration-300" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+
+            {/* Name */}
+            <div>
+              <h3 className="font-display font-bold text-base leading-snug" style={{ color: name.trim() ? 'var(--fg)' : 'rgba(107,107,107,.3)' }}>
+                {name.trim() || 'Your event name'}
+              </h3>
+            </div>
+
+            {/* Date + Venue */}
+            {(date || venue) && (
+              <div className="space-y-1.5">
+                {date && (
+                  <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--muted)' }}>
+                    <CalendarDays className="w-3.5 h-3.5 flex-shrink-0" />
+                    {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
+                )}
+                {venue && (
+                  <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--muted)' }}>
+                    <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-[#FF6B4A]" />
+                    <span className="truncate">{venue}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Groups (step 3+) */}
+            {step >= 3 && groups.some(g => g.name.trim()) && (
+              <div className="pt-3 border-t" style={{ borderColor: 'var(--border)' }}>
+                <div className="flex items-center gap-1.5 mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+                  <Users className="w-3 h-3" /> Groups
+                </div>
+                <div className="space-y-1">
+                  {groups.filter(g => g.name.trim()).map((g, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs rounded-lg px-2.5 py-1.5" style={{ backgroundColor: 'var(--subtle)' }}>
+                      <span style={{ color: 'var(--fg)' }}>{g.name}</span>
+                      {g.start_time && <span style={{ color: 'var(--muted)' }}>{g.start_time}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Templates (step 4+) */}
+            {step >= 4 && templates.some(t => t.name.trim()) && (
+              <div className="pt-3 border-t" style={{ borderColor: 'var(--border)' }}>
+                <div className="flex items-center gap-1.5 mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+                  <ClipboardList className="w-3 h-3" /> Templates
+                </div>
+                <div className="space-y-2">
+                  {templates.filter(t => t.name.trim()).map((t, i) => (
+                    <div key={i} className="rounded-lg px-2.5 py-2" style={{ backgroundColor: 'var(--subtle)' }}>
+                      <p className="text-xs font-medium mb-1.5" style={{ color: 'var(--fg)' }}>{t.name}</p>
+                      {t.metrics.some(m => m.name.trim()) && (
+                        <div className="flex flex-wrap gap-1">
+                          {t.metrics.filter(m => m.name.trim()).map((m, mi) => {
+                            const chip = METRIC_CHIPS[m.type]
+                            return (
+                              <span key={mi} className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: chip.bg, color: chip.color }}>
+                                {m.name}
+                              </span>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Placeholder when nothing filled yet */}
+            {!name.trim() && !date && !venue && (
+              <p className="text-xs" style={{ color: 'rgba(107,107,107,.4)' }}>Fill in the form to see your event take shape.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Wizard form (left column) ── */}
+      <div>
       {/* Progress bars */}
       <div className="flex items-center gap-2 mb-2">
         {([1, 2, 3, 4] as const).map(s => (
@@ -341,6 +428,7 @@ export function EventWizard() {
             )}
           </button>
         )}
+      </div>
       </div>
     </div>
   )
