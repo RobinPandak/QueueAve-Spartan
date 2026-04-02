@@ -7,13 +7,14 @@ import {
   ArrowLeft, Calendar, MapPin, Users, Copy, Check, Share2,
   ClipboardList, BarChart2, ChevronDown, ChevronUp,
 } from 'lucide-react'
-import { toggleCheckIn } from '@/app/actions/participants'
+import { toggleCheckIn, approveParticipant, rejectParticipant } from '@/app/actions/participants'
 
 type Participant = {
   id: string
   name: string
   checked_in: boolean
   group_id: string | null
+  status: string | null
 }
 type Group = { id: string; name: string }
 type Props = {
@@ -60,7 +61,9 @@ export function EventDashboard({ event, participants, groups, sessionCount, isOw
   const [copied, setCopied] = useState(false)
   const [showAll, setShowAll] = useState(false)
   const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [actionId, setActionId] = useState<string | null>(null)
   const [, startToggle] = useTransition()
+  const [, startAction] = useTransition()
 
   const badge = STATUS_BADGE[event.status] ?? STATUS_BADGE.draft
   const checkedIn = participants.filter(p => p.checked_in).length
@@ -93,6 +96,25 @@ export function EventDashboard({ event, participants, groups, sessionCount, isOw
     })
   }
 
+  const handleApprove = (participantId: string) => {
+    setActionId(participantId)
+    startAction(async () => {
+      await approveParticipant(participantId, event.id)
+      router.refresh()
+      setActionId(null)
+    })
+  }
+
+  const handleReject = (participantId: string) => {
+    setActionId(participantId)
+    startAction(async () => {
+      await rejectParticipant(participantId, event.id)
+      router.refresh()
+      setActionId(null)
+    })
+  }
+
+  const pendingCount = participants.filter(p => !p.status || p.status === 'pending').length
   const visibleParticipants = participants.length > COLLAPSE_THRESHOLD && !showAll
     ? participants.slice(0, INITIAL_VISIBLE)
     : participants
@@ -225,12 +247,18 @@ export function EventDashboard({ event, participants, groups, sessionCount, isOw
       {/* ── Participant roster ── */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+          <h2 className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--muted)' }}>
             Athletes
-            <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-bold"
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold"
               style={{ backgroundColor: 'var(--subtle)', color: 'var(--muted)' }}>
               {participants.length}
             </span>
+            {pendingCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+                style={{ backgroundColor: 'rgba(255,184,0,.15)', color: '#9B7800' }}>
+                {pendingCount} pending
+              </span>
+            )}
           </h2>
           {isOwner && event.status === 'open' && (
             <Link href={`/events/${event.id}/participants`}
@@ -257,25 +285,62 @@ export function EventDashboard({ event, participants, groups, sessionCount, isOw
                 return (
                   <div key={p.id}
                     className="flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all"
-                    style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+                    style={{
+                      backgroundColor: 'var(--card)',
+                      borderColor: (!p.status || p.status === 'pending') ? 'rgba(255,184,0,.3)' : 'var(--border)',
+                    }}>
                     <ParticipantAvatar name={p.name} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate" style={{ color: 'var(--fg)' }}>{p.name}</p>
-                      {group && (
-                        <p className="text-xs truncate" style={{ color: 'var(--muted)' }}>{group.name}</p>
+                      {group
+                        ? <p className="text-xs truncate" style={{ color: 'var(--muted)' }}>{group.name}</p>
+                        : (!p.status || p.status === 'pending') && (
+                          <p className="text-xs" style={{ color: '#9B7800' }}>Pending approval</p>
+                        )
+                      }
+                      {group && (!p.status || p.status === 'pending') && (
+                        <p className="text-xs" style={{ color: '#9B7800' }}>Pending approval</p>
                       )}
                     </div>
                     {isOwner && (
-                      <button
-                        onClick={() => handleToggleCheckIn(p.id, p.checked_in)}
-                        disabled={togglingId === p.id}
-                        className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
-                        style={p.checked_in
-                          ? { backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' }
-                          : { backgroundColor: 'var(--subtle)', color: 'var(--muted)' }}
-                      >
-                        {p.checked_in ? <span className="flex items-center gap-1"><Check className="w-3 h-3" /> In</span> : 'Check in'}
-                      </button>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {(!p.status || p.status === 'pending') ? (
+                          <>
+                            <button
+                              onClick={() => handleApprove(p.id)}
+                              disabled={actionId === p.id}
+                              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                              style={{ backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' }}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleReject(p.id)}
+                              disabled={actionId === p.id}
+                              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                              style={{ backgroundColor: 'rgba(229,72,77,.1)', color: '#E5484D' }}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        ) : p.status === 'approved' ? (
+                          <button
+                            onClick={() => handleToggleCheckIn(p.id, p.checked_in)}
+                            disabled={togglingId === p.id}
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                            style={p.checked_in
+                              ? { backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' }
+                              : { backgroundColor: 'var(--subtle)', color: 'var(--muted)' }}
+                          >
+                            {p.checked_in ? <span className="flex items-center gap-1"><Check className="w-3 h-3" /> In</span> : 'Check in'}
+                          </button>
+                        ) : (
+                          <span className="px-2.5 py-1.5 rounded-lg text-xs font-semibold"
+                            style={{ backgroundColor: 'rgba(229,72,77,.1)', color: '#E5484D' }}>
+                            Rejected
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 )

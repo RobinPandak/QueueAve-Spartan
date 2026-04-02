@@ -2,16 +2,19 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Check, Camera, Download, Smartphone, ArrowRight } from 'lucide-react'
+import { Check, Clock, Camera, Download, Smartphone, ArrowRight } from 'lucide-react'
 
 type Props = {
   participantId: string
   name: string
+  status: string | null
   qrUrl: string
   profileUrl: string
 }
 
-export function ParticipantProfile({ participantId, name, qrUrl, profileUrl }: Props) {
+export function ParticipantProfile({ participantId, name, status, qrUrl, profileUrl }: Props) {
+  const isPending = !status || status === 'pending'
+  const isApproved = status === 'approved'
   const [saving, setSaving] = useState(false)
 
   async function saveQr() {
@@ -34,18 +37,24 @@ export function ParticipantProfile({ participantId, name, qrUrl, profileUrl }: P
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10" style={{ backgroundColor: '#FDF8F5' }}>
       <div className="w-full max-w-sm space-y-5">
 
-        {/* Check icon */}
+        {/* Status icon */}
         <div className="flex justify-center">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-            style={{ backgroundColor: '#FF6B4A' }}>
-            <Check className="w-8 h-8 text-white" strokeWidth={3} />
+            style={{ backgroundColor: isPending ? '#FFB800' : '#FF6B4A' }}>
+            {isPending
+              ? <Clock className="w-8 h-8 text-white" strokeWidth={2.5} />
+              : <Check className="w-8 h-8 text-white" strokeWidth={3} />}
           </div>
         </div>
 
         {/* Heading */}
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-black" style={{ color: '#1A1A1A' }}>You&apos;re registered!</h1>
-          <p className="text-sm" style={{ color: '#6B6B6B' }}>Welcome, {name}</p>
+          <h1 className="text-2xl font-black" style={{ color: '#1A1A1A' }}>
+            {isPending ? 'Waiting for approval' : isApproved ? "You're in!" : 'Registration received'}
+          </h1>
+          <p className="text-sm" style={{ color: '#6B6B6B' }}>
+            {isPending ? 'Your coach will confirm your spot soon.' : `Welcome, ${name}`}
+          </p>
         </div>
 
         {/* Add profile photo */}
@@ -60,7 +69,9 @@ export function ParticipantProfile({ participantId, name, qrUrl, profileUrl }: P
 
         {/* QR section */}
         <div className="text-center space-y-4">
-          <p className="text-sm" style={{ color: '#A0A0A0' }}>Save your QR for instant check-in next time</p>
+          <p className="text-sm" style={{ color: '#A0A0A0' }}>
+            {isPending ? 'Your athlete profile QR — save it for check-in' : 'Save your QR for instant check-in'}
+          </p>
 
           <div className="flex justify-center">
             <div className="rounded-2xl p-4 inline-block" style={{ backgroundColor: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,.08)' }}>

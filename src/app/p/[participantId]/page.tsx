@@ -9,7 +9,7 @@ export default async function ParticipantPage({ params }: { params: Promise<{ pa
 
   const { data: participant } = await supabase
     .from('spartan_participants')
-    .select('id, name')
+    .select('id, name, status')
     .eq('id', participantId)
     .single()
 
@@ -25,6 +25,7 @@ export default async function ParticipantPage({ params }: { params: Promise<{ pa
     <ParticipantProfile
       participantId={participantId}
       name={participant.name}
+      status={participant.status}
       qrUrl={qrUrl}
       profileUrl={profileUrl}
     />

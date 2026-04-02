@@ -77,6 +77,22 @@ export async function findParticipantByEmail(eventId: string, email: string): Pr
   return { id: data.id }
 }
 
+export async function approveParticipant(participantId: string, eventId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  await supabase.from('spartan_participants').update({ status: 'approved' }).eq('id', participantId)
+  revalidatePath(`/events/${eventId}`)
+}
+
+export async function rejectParticipant(participantId: string, eventId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  await supabase.from('spartan_participants').update({ status: 'rejected' }).eq('id', participantId)
+  revalidatePath(`/events/${eventId}`)
+}
+
 export async function reassignGroup(participantId: string, eventId: string, groupId: string | null) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
