@@ -1,85 +1,71 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import { registerParticipant } from '@/app/actions/participants'
+import { Calendar, MapPin } from 'lucide-react'
+import { JoinForm } from './join-form'
+
+function formatDate(d: string | null) {
+  if (!d) return null
+  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+}
 
 export default async function JoinPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await params
   const supabase = await createClient()
-  const { data: event } = await supabase
-    .from('spartan_events')
-    .select('*')
-    .eq('id', eventId)
-    .single()
+
+  const [{ data: event }, { data: groups }] = await Promise.all([
+    supabase.from('spartan_events').select('id, name, date, venue, description, status').eq('id', eventId).single(),
+    supabase.from('spartan_groups').select('id, name, start_time').eq('event_id', eventId).order('sort_order'),
+  ])
+
   if (!event || event.status !== 'open') notFound()
 
-  const { data: groups } = await supabase
-    .from('spartan_groups')
-    .select('*')
-    .eq('event_id', eventId)
-    .order('sort_order')
-
-  async function handleRegister(formData: FormData) {
-    'use server'
-    await registerParticipant(
-      eventId,
-      formData.get('name') as string,
-      (formData.get('group_id') as string) || null,
-    )
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg)' }}>
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <img src="/logo.svg" alt="Spartan" width="48" height="48" className="mx-auto mb-3" />
-          <h1 className="text-2xl font-extrabold">{event.name}</h1>
-          {event.venue && (
-            <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>
-              {event.venue}
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ backgroundColor: 'var(--bg)' }}>
+      <div className="w-full max-w-sm space-y-5">
+
+        {/* Branding */}
+        <div className="text-center">
+          <img src="/logo.svg" alt="QueueAve" width="40" height="40" className="mx-auto mb-3" />
+          <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#FF6B4A' }}>Spartan by QueueAve</p>
+        </div>
+
+        {/* Event info card */}
+        <div className="rounded-2xl border p-5 space-y-3" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+          <div>
+            <h1 className="font-display text-xl font-extrabold leading-snug" style={{ color: 'var(--fg)' }}>{event.name}</h1>
+            <span className="inline-flex items-center gap-1 mt-1 text-xs font-medium px-2.5 py-0.5 rounded-full"
+              style={{ backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00BFA5] animate-pulse" />
+              Open for registration
+            </span>
+          </div>
+          <div className="space-y-1.5">
+            {event.date && (
+              <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--muted)' }}>
+                <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                {formatDate(event.date)}
+              </div>
+            )}
+            {event.venue && (
+              <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--muted)' }}>
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-[#FF6B4A]" />
+                {event.venue}
+              </div>
+            )}
+          </div>
+          {event.description && (
+            <p className="text-sm pt-1 border-t" style={{ color: 'var(--muted)', borderColor: 'var(--border)' }}>
+              {event.description}
             </p>
           )}
         </div>
 
-        <div className="p-6 rounded-2xl border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-          <h2 className="font-bold text-lg mb-5">Register</h2>
-          <form action={handleRegister} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Your name</label>
-              <input
-                name="name"
-                required
-                placeholder="Full name"
-                className="w-full px-4 py-2.5 rounded-xl border text-sm"
-                style={{ backgroundColor: 'var(--subtle)', borderColor: 'var(--border)', color: 'var(--fg)' }}
-              />
-            </div>
-            {groups && groups.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Group</label>
-                <select
-                  name="group_id"
-                  className="w-full px-4 py-2.5 rounded-xl border text-sm cursor-pointer"
-                  style={{ backgroundColor: 'var(--subtle)', borderColor: 'var(--border)', color: 'var(--fg)' }}
-                >
-                  <option value="">No group</option>
-                  {groups.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.name}
-                      {g.start_time ? ` (${g.start_time})` : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl text-white font-semibold cursor-pointer"
-              style={{ backgroundColor: '#FF6B4A' }}
-            >
-              Join
-            </button>
-          </form>
+        {/* Registration form card */}
+        <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+          <h2 className="font-display font-bold text-lg mb-5" style={{ color: 'var(--fg)' }}>Register</h2>
+          <JoinForm eventId={eventId} groups={groups ?? []} />
         </div>
+
       </div>
     </div>
   )

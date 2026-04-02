@@ -11,18 +11,40 @@ function serviceClient() {
   )
 }
 
-export async function registerParticipant(eventId: string, name: string, groupId: string | null) {
+export async function registerParticipant(
+  eventId: string,
+  name: string,
+  groupId: string | null,
+  email: string | null = null,
+  phone: string | null = null,
+): Promise<{ error: string } | never> {
+  if (!name.trim()) return { error: 'Name is required.' }
+
   const service = serviceClient()
+
+  // Duplicate name check (case-insensitive)
+  const { data: existing } = await service
+    .from('spartan_participants')
+    .select('id')
+    .eq('event_id', eventId)
+    .ilike('name', name.trim())
+    .maybeSingle()
+
+  if (existing) return { error: 'Someone with this name is already registered.' }
+
   const { data, error } = await service
     .from('spartan_participants')
     .insert({
       event_id: eventId,
-      name,
+      name: name.trim(),
       group_id: groupId || null,
+      email: email || null,
+      phone: phone || null,
     })
     .select()
     .single()
-  if (error || !data) throw new Error('Registration failed')
+
+  if (error || !data) return { error: 'Registration failed. Please try again.' }
   redirect(`/p/${data.id}`)
 }
 
