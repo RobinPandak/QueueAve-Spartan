@@ -484,6 +484,124 @@ export default function LandingClient({ user }: { user: boolean }) {
         </div>
       </section>
 
+      {/* ─── App Preview ─── */}
+      <section className="py-24 sm:py-32 px-6">
+        <div className="max-w-5xl mx-auto">
+          <Reveal>
+            <div className="text-center mb-14">
+              <p className="text-sm font-semibold tracking-widest uppercase mb-3" style={{ color: '#FF6B4A' }}>Dashboard</p>
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: 'var(--fg)' }}>
+                Everything at a glance
+              </h2>
+              <p className="mt-3 max-w-md mx-auto text-sm" style={{ color: 'var(--muted)' }}>
+                Active events front and center. Past results always one click away.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={100}>
+            {/* Browser chrome */}
+            <div className="rounded-2xl overflow-hidden shadow-2xl border" style={{ borderColor: 'var(--border)' }}>
+              {/* Title bar */}
+              <div className="flex items-center gap-2 px-4 py-3 border-b" style={{ backgroundColor: 'var(--subtle)', borderColor: 'var(--border)' }}>
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(107,107,107,.2)' }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(107,107,107,.2)' }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(107,107,107,.2)' }} />
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <div className="rounded-md px-4 py-1 text-xs" style={{ backgroundColor: 'var(--card)', color: 'var(--muted)', border: '1px solid var(--border)' }}>
+                    spartan.queueave.com/dashboard
+                  </div>
+                </div>
+              </div>
+
+              {/* Dashboard content */}
+              <div className="p-6 sm:p-8 space-y-6" style={{ backgroundColor: 'var(--bg)' }}>
+                {/* Header row */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-display text-xl font-bold" style={{ color: 'var(--fg)' }}>Good morning, Coach</p>
+                    <p className="text-sm mt-0.5" style={{ color: 'var(--muted)' }}>
+                      <span style={{ color: '#FF6B4A', fontWeight: 600 }}>2 active</span>
+                      {' · '}5 events{' · '}34 participants
+                    </p>
+                  </div>
+                  <div className="px-4 py-2 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#FF6B4A' }}>
+                    + New Event
+                  </div>
+                </div>
+
+                {/* Active section */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: '#00BFA5' }} />
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>Active</span>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {/* Active card 1 */}
+                    <div className="rounded-2xl overflow-hidden border border-l-4" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderLeftColor: '#FF6B4A' }}>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <span className="font-semibold text-sm" style={{ color: 'var(--fg)' }}>Spartan Sprint #4</span>
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' }}>open</span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-2 text-xs" style={{ color: 'var(--muted)' }}>
+                          <span>Today</span><span>·</span><span>Clark, Pampanga</span><span>·</span><span>12 athletes</span>
+                        </div>
+                      </div>
+                      <div className="border-t py-2 text-center text-xs font-medium" style={{ borderColor: 'var(--border)', color: '#FF6B4A' }}>
+                        Share join link
+                      </div>
+                    </div>
+                    {/* Active card 2 */}
+                    <div className="rounded-2xl overflow-hidden border border-l-4" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderLeftColor: '#FF6B4A' }}>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <span className="font-semibold text-sm" style={{ color: 'var(--fg)' }}>Team Qualifier</span>
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' }}>open</span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-2 text-xs" style={{ color: 'var(--muted)' }}>
+                          <span>Tomorrow</span><span>·</span><span>8 athletes</span>
+                        </div>
+                      </div>
+                      <div className="border-t py-2 text-center text-xs font-medium" style={{ borderColor: 'var(--border)', color: '#FF6B4A' }}>
+                        Share join link
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Past section */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--muted)' }}>Past</p>
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    {[
+                      { name: 'Sprint #3', date: 'Mar 15', count: 10, status: 'completed' },
+                      { name: 'Qualifier Prep', date: 'Mar 8', count: 6, status: 'completed' },
+                      { name: 'Pre-season Trial', date: 'No date set', count: 0, status: 'draft' },
+                    ].map(e => (
+                      <div key={e.name} className="rounded-2xl p-3.5 border" style={{ backgroundColor: 'rgba(255,255,255,.6)', borderColor: 'var(--border)' }}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium" style={{ color: 'var(--muted)' }}>{e.name}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
+                            backgroundColor: e.status === 'draft' ? 'rgba(255,184,0,.12)' : 'var(--subtle)',
+                            color: e.status === 'draft' ? '#9B7800' : 'var(--muted)'
+                          }}>{e.status}</span>
+                        </div>
+                        <p className="text-xs" style={{ color: 'var(--muted)' }}>
+                          {e.date}{e.count > 0 ? ` · ${e.count} participants` : ''}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* ─── Features ─── */}
       <section className="py-24 sm:py-32 px-6" style={{ backgroundColor: 'var(--subtle)' }}>
         <div className="max-w-5xl mx-auto">

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Check, Sparkles } from 'lucide-react'
 import { createEvent } from '@/app/actions/events'
 import SlideIn from '@/components/slide-in'
+import PlacesAutocomplete from '@/components/places-autocomplete'
 
 type Step = 1 | 2 | 3 | 4
 type Group = { name: string; start_time?: string }
@@ -47,6 +48,9 @@ export function EventWizard() {
   const [name, setName]            = useState('')
   const [date, setDate]            = useState('')
   const [venue, setVenue]          = useState('')
+  const [placeSelected, setPlaceSelected] = useState(false)
+  const [selectedAddress, setSelectedAddress] = useState('')
+  const [selectedPlaceId, setSelectedPlaceId] = useState('')
   const [description, setDescription] = useState('')
   const [groups, setGroups]        = useState<Group[]>([{ name: '' }])
   const [templates, setTemplates]  = useState<Template[]>([{ name: '', metrics: [{ name: '', type: 'time' }] }])
@@ -189,7 +193,25 @@ export function EventWizard() {
                   Venue{' '}
                   <span className="text-xs font-normal normal-case tracking-normal" style={{ color: 'var(--muted)' }}>optional</span>
                 </label>
-                <input className={inputCls} style={inputSty} value={venue} onChange={e => setVenue(e.target.value)} placeholder="e.g. Spartan Training Ground" />
+                <PlacesAutocomplete
+                  value={venue}
+                  onChange={setVenue}
+                  onPlaceSelect={place => {
+                    setVenue(place.name)
+                    setPlaceSelected(true)
+                    setSelectedAddress(place.address)
+                    setSelectedPlaceId(place.placeId)
+                  }}
+                  onClear={() => {
+                    setVenue('')
+                    setPlaceSelected(false)
+                    setSelectedAddress('')
+                    setSelectedPlaceId('')
+                  }}
+                  placeSelected={placeSelected}
+                  selectedAddress={selectedAddress}
+                  selectedPlaceId={selectedPlaceId}
+                />
               </div>
               <div>
                 <label className={labelCls} style={labelSty}>
