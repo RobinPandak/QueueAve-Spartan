@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Calendar, MapPin, QrCode, Mail, ArrowLeft } from 'lucide-react'
+import { Calendar, Clock, MapPin, QrCode, Mail, ArrowLeft } from 'lucide-react'
 import { registerParticipant, findParticipantByEmail } from '@/app/actions/participants'
 
 type View = 'entry' | 'form' | 'qr' | 'email'
@@ -12,6 +12,7 @@ type EventData = {
   id: string
   name: string
   date: string | null
+  start_time: string | null
   venue: string | null
   description: string | null
   social_platform: string | null
@@ -43,6 +44,12 @@ function EventInfoCard({ event }: { event: EventData }) {
         <div className="flex items-center gap-2.5 text-sm" style={{ color: '#6B6B6B' }}>
           <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
           {formatDate(event.date)}
+        </div>
+      )}
+      {event.start_time && (
+        <div className="flex items-center gap-2.5 text-sm" style={{ color: '#6B6B6B' }}>
+          <Clock className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
+          {new Date('1970-01-01T' + event.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
         </div>
       )}
       {event.venue && (

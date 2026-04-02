@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Check, Sparkles, CalendarDays, MapPin, Users, ClipboardList } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Sparkles, CalendarDays, Clock, MapPin, Users, ClipboardList } from 'lucide-react'
 import { createEvent } from '@/app/actions/events'
 import SlideIn from '@/components/slide-in'
 import PlacesAutocomplete from '@/components/places-autocomplete'
@@ -48,6 +48,7 @@ export function EventWizard() {
   const [name, setName]            = useState('')
   const [socialPlatform, setSocialPlatform] = useState<'instagram' | 'facebook' | 'x' | 'tiktok'>('instagram')
   const [date, setDate]            = useState('')
+  const [startTime, setStartTime]  = useState('')
   const [venue, setVenue]          = useState('')
   const [placeSelected, setPlaceSelected] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState('')
@@ -99,7 +100,7 @@ export function EventWizard() {
     }
     setSaving(true)
     await createEvent({
-      name, date, venue, description,
+      name, date, start_time: startTime || undefined, venue, description,
       social_platform: socialPlatform,
       groups: groups.filter(g => g.name.trim()),
       templates: templates.filter(t => t.name.trim()),
@@ -129,6 +130,12 @@ export function EventWizard() {
                   <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--muted)' }}>
                     <CalendarDays className="w-3.5 h-3.5 flex-shrink-0" />
                     {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
+                )}
+                {startTime && (
+                  <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--muted)' }}>
+                    <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                    {new Date('1970-01-01T' + startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                   </div>
                 )}
                 {venue && (
@@ -309,6 +316,19 @@ export function EventWizard() {
                   onChange={e => { setDate(e.target.value); setErrors({}) }}
                 />
                 {errors.date && <p className="text-xs mt-1.5" style={{ color: '#E5484D' }}>{errors.date}</p>}
+              </div>
+              <div>
+                <label className={labelCls} style={labelSty}>
+                  Start time{' '}
+                  <span className="text-xs font-normal normal-case tracking-normal" style={{ color: 'var(--muted)' }}>optional</span>
+                </label>
+                <input
+                  type="time"
+                  className={inputCls}
+                  style={inputSty}
+                  value={startTime}
+                  onChange={e => setStartTime(e.target.value)}
+                />
               </div>
               <div>
                 <label className={labelCls} style={labelSty}>

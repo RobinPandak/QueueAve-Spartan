@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 export type WizardData = {
   name: string
   date: string
+  start_time?: string
   venue?: string
   description?: string
   social_platform?: string
@@ -26,6 +27,7 @@ export async function createEvent(data: WizardData) {
     .insert({
       name: data.name,
       date: data.date,
+      start_time: data.start_time || null,
       venue: data.venue || null,
       description: data.description || null,
       social_platform: data.social_platform || 'instagram',
