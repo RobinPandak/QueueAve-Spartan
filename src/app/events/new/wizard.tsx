@@ -46,6 +46,7 @@ export function EventWizard() {
   const nameRef = useRef<HTMLInputElement>(null)
 
   const [name, setName]            = useState('')
+  const [socialPlatform, setSocialPlatform] = useState<'instagram' | 'facebook' | 'x' | 'tiktok'>('instagram')
   const [date, setDate]            = useState('')
   const [venue, setVenue]          = useState('')
   const [placeSelected, setPlaceSelected] = useState(false)
@@ -99,6 +100,7 @@ export function EventWizard() {
     setSaving(true)
     await createEvent({
       name, date, venue, description,
+      social_platform: socialPlatform,
       groups: groups.filter(g => g.name.trim()),
       templates: templates.filter(t => t.name.trim()),
     })
@@ -257,6 +259,39 @@ export function EventWizard() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Social platform preference */}
+              <div>
+                <label className={labelCls} style={labelSty}>
+                  Preferred social media{' '}
+                  <span className="text-xs font-normal normal-case tracking-normal" style={{ color: 'var(--muted)' }}>for participant handles</span>
+                </label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {(['instagram', 'facebook', 'x', 'tiktok'] as const).map(p => {
+                    const labels: Record<string, string> = { instagram: 'Instagram', facebook: 'Facebook', x: 'X (Twitter)', tiktok: 'TikTok' }
+                    const active = socialPlatform === p
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setSocialPlatform(p)}
+                        className="px-3.5 py-2 text-sm rounded-xl border transition-all cursor-pointer"
+                        style={{
+                          backgroundColor: active ? 'rgba(255,107,74,.1)' : 'var(--card)',
+                          borderColor: active ? '#FF6B4A' : 'var(--border)',
+                          color: active ? '#FF6B4A' : 'var(--muted)',
+                          fontWeight: active ? 600 : 400,
+                        }}
+                      >
+                        {labels[p]}
+                      </button>
+                    )
+                  })}
+                </div>
+                <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>
+                  Participants will be asked for their {socialPlatform === 'x' ? 'X' : socialPlatform.charAt(0).toUpperCase() + socialPlatform.slice(1)} handle during registration.
+                </p>
               </div>
             </div>
           )}

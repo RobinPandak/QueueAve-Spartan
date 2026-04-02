@@ -76,6 +76,15 @@ export default async function ParticipantPage({ params }: { params: Promise<{ pa
                   Group: <span style={{ color: 'var(--fg)' }}>{group.name}</span>
                 </p>
               )}
+              {participant.social_handle && (() => {
+                const [platform, handle] = participant.social_handle.split(':')
+                const platformLabel = platform === 'x' ? 'X' : platform.charAt(0).toUpperCase() + platform.slice(1)
+                return (
+                  <p className="text-xs font-medium mt-1 pt-1.5 border-t" style={{ color: 'var(--muted)', borderColor: 'var(--border)' }}>
+                    {platformLabel}: <span style={{ color: 'var(--fg)' }}>{handle ?? participant.social_handle}</span>
+                  </p>
+                )
+              })()}
             </div>
           )}
 

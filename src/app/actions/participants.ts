@@ -17,6 +17,7 @@ export async function registerParticipant(
   groupId: string | null,
   email: string | null = null,
   phone: string | null = null,
+  socialHandle: string | null = null,
 ): Promise<{ error: string } | never> {
   if (!name.trim()) return { error: 'Name is required.' }
 
@@ -40,6 +41,7 @@ export async function registerParticipant(
       group_id: groupId || null,
       email: email || null,
       phone: phone || null,
+      social_handle: socialHandle || null,
     })
     .select()
     .single()

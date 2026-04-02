@@ -13,7 +13,7 @@ export default async function JoinPage({ params }: { params: Promise<{ eventId: 
   const supabase = await createClient()
 
   const [{ data: event }, { data: groups }] = await Promise.all([
-    supabase.from('spartan_events').select('id, name, date, venue, description, status').eq('id', eventId).single(),
+    supabase.from('spartan_events').select('id, name, date, venue, description, status, social_platform').eq('id', eventId).single(),
     supabase.from('spartan_groups').select('id, name, start_time').eq('event_id', eventId).order('sort_order'),
   ])
 
@@ -63,7 +63,7 @@ export default async function JoinPage({ params }: { params: Promise<{ eventId: 
         {/* Registration form card */}
         <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
           <h2 className="font-display font-bold text-lg mb-5" style={{ color: 'var(--fg)' }}>Register</h2>
-          <JoinForm eventId={eventId} groups={groups ?? []} />
+          <JoinForm eventId={eventId} groups={groups ?? []} defaultPlatform={event.social_platform ?? 'instagram'} />
         </div>
 
       </div>

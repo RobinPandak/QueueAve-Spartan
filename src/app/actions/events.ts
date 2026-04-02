@@ -7,6 +7,7 @@ export type WizardData = {
   date: string
   venue?: string
   description?: string
+  social_platform?: string
   groups: { name: string; start_time?: string }[]
   templates: {
     name: string
@@ -27,6 +28,7 @@ export async function createEvent(data: WizardData) {
       date: data.date,
       venue: data.venue || null,
       description: data.description || null,
+      social_platform: data.social_platform || 'instagram',
       organizer_id: user.id,
       status: 'open',
     })

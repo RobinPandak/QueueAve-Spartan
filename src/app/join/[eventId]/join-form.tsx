@@ -4,38 +4,54 @@ import { useState } from 'react'
 import { registerParticipant } from '@/app/actions/participants'
 
 type Group = { id: string; name: string; start_time: string | null }
+type Platform = 'instagram' | 'facebook' | 'x' | 'tiktok'
 
 type Props = {
   eventId: string
   groups: Group[]
+  defaultPlatform: string
 }
+
+const PLATFORMS: { value: Platform; label: string }[] = [
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'facebook', label: 'Facebook' },
+  { value: 'x',        label: 'X' },
+  { value: 'tiktok',   label: 'TikTok' },
+]
 
 const inputCls = 'w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B4A]/40 transition-all'
 const inputSty = { backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--fg)' } as const
 const labelCls = 'block text-xs font-bold uppercase tracking-wider mb-2'
 const labelSty = { color: 'var(--fg)' } as const
 
-export function JoinForm({ eventId, groups }: Props) {
+export function JoinForm({ eventId, groups, defaultPlatform }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [platform, setPlatform] = useState<Platform>(
+    (PLATFORMS.find(p => p.value === defaultPlatform)?.value) ?? 'instagram'
+  )
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     setLoading(true)
     const fd = new FormData(e.currentTarget)
+    const rawHandle = (fd.get('social_handle') as string).trim()
+    const socialHandle = rawHandle
+      ? `${platform}:${rawHandle.startsWith('@') ? rawHandle : '@' + rawHandle}`
+      : null
     const result = await registerParticipant(
       eventId,
       (fd.get('name') as string).trim(),
       (fd.get('group_id') as string) || null,
       (fd.get('email') as string).trim() || null,
       (fd.get('phone') as string).trim() || null,
+      socialHandle,
     )
     if (result?.error) {
       setError(result.error)
       setLoading(false)
     }
-    // on success, registerParticipant redirects — no need to handle here
   }
 
   return (
@@ -97,6 +113,41 @@ export function JoinForm({ eventId, groups }: Props) {
           name="phone"
           type="tel"
           placeholder="+63 912 345 6789"
+          className={inputCls}
+          style={inputSty}
+        />
+      </div>
+
+      {/* Social handle */}
+      <div>
+        <label className={labelCls} style={labelSty}>
+          Social media <span className="text-xs font-normal normal-case tracking-normal" style={{ color: 'var(--muted)' }}>optional</span>
+        </label>
+        {/* Platform picker */}
+        <div className="flex gap-1.5 mb-2 flex-wrap">
+          {PLATFORMS.map(p => {
+            const active = platform === p.value
+            return (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => setPlatform(p.value)}
+                className="px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer"
+                style={{
+                  backgroundColor: active ? 'rgba(255,107,74,.1)' : 'var(--card)',
+                  borderColor: active ? '#FF6B4A' : 'var(--border)',
+                  color: active ? '#FF6B4A' : 'var(--muted)',
+                  fontWeight: active ? 600 : 400,
+                }}
+              >
+                {p.label}
+              </button>
+            )
+          })}
+        </div>
+        <input
+          name="social_handle"
+          placeholder="@yourhandle"
           className={inputCls}
           style={inputSty}
         />
