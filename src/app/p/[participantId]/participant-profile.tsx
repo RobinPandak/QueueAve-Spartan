@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Check, Clock, Camera, Calendar, Download, MapPin, Smartphone } from 'lucide-react'
+import { updateAvatarUrl } from '@/app/actions/participants'
+import { createClient } from '@/lib/supabase/client'
 
 type EventData = { name: string; date: string | null; start_time: string | null; venue: string | null } | null
 
@@ -12,6 +14,7 @@ type Props = {
   event: EventData
   qrUrl: string
   profileUrl: string
+  avatarUrl: string | null
 }
 
 function formatDate(d: string | null) {
@@ -24,10 +27,39 @@ function formatTime(t: string | null) {
   return new Date('1970-01-01T' + t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
-export function ParticipantProfile({ participantId: _participantId, name, status, event, qrUrl }: Props) {
+export function ParticipantProfile({ participantId, name, status, event, qrUrl, avatarUrl: initialAvatarUrl }: Props) {
   const [saving, setSaving] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl)
+  const [avatarLoading, setAvatarLoading] = useState(false)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
+  const photoInputRef = useRef<HTMLInputElement>(null)
   const isPending = !status || status === 'pending'
   const isApproved = status === 'approved'
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarError(null)
+    setAvatarLoading(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const path = `${participantId}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('spartan-avatars')
+        .upload(path, file, { upsert: true, contentType: file.type })
+      if (uploadError) throw uploadError
+      const { data: { publicUrl } } = supabase.storage.from('spartan-avatars').getPublicUrl(path)
+      const result = await updateAvatarUrl(participantId, publicUrl)
+      if ('error' in result) throw new Error(result.error)
+      setAvatarUrl(publicUrl + '?t=' + Date.now())
+    } catch {
+      setAvatarError('Failed to upload photo. Please try again.')
+    } finally {
+      setAvatarLoading(false)
+      if (photoInputRef.current) photoInputRef.current.value = ''
+    }
+  }
 
   async function saveQr() {
     setSaving(true)
@@ -145,15 +177,38 @@ export function ParticipantProfile({ participantId: _participantId, name, status
               </div>
             </div>
 
-            {/* Add profile photo */}
-            <button
-              type="button"
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl border text-sm font-medium cursor-pointer transition-all hover:opacity-75"
-              style={{ backgroundColor: '#FFFFFF', borderColor: 'rgba(0,0,0,.1)', color: '#1A1A1A' }}
-            >
-              <Camera className="w-4 h-4" style={{ color: '#6B6B6B' }} />
-              Add a profile photo
-            </button>
+            {/* Profile photo */}
+            <div className="space-y-2">
+              {avatarUrl && (
+                <div className="flex justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={avatarUrl} alt="Profile photo" className="w-20 h-20 rounded-2xl object-cover" />
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={avatarLoading}
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl border text-sm font-medium cursor-pointer transition-all hover:opacity-75 disabled:opacity-50"
+                style={{ backgroundColor: '#FFFFFF', borderColor: 'rgba(0,0,0,.1)', color: '#1A1A1A' }}
+              >
+                <Camera className="w-4 h-4" style={{ color: '#6B6B6B' }} />
+                {avatarLoading ? 'Uploading...' : avatarUrl ? 'Change profile photo' : 'Add a profile photo'}
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+              />
+              {avatarError && (
+                <p className="text-xs px-4 py-2 rounded-xl text-center"
+                  style={{ backgroundColor: 'rgba(229,72,77,.1)', color: '#E5484D' }}>
+                  {avatarError}
+                </p>
+              )}
+            </div>
 
             {/* QR section */}
             <div className="text-center space-y-4">

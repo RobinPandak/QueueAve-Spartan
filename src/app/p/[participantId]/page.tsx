@@ -31,6 +31,7 @@ export default async function ParticipantPage({ params }: { params: Promise<{ pa
       event={event}
       qrUrl={qrUrl}
       profileUrl={profileUrl}
+      avatarUrl={participant.avatar_url ?? null}
     />
   )
 }

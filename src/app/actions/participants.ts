@@ -95,11 +95,13 @@ export async function findParticipantByEmail(eventId: string, email: string): Pr
   const service = serviceClient()
   const { data } = await service
     .from('spartan_participants')
-    .select('id')
+    .select('id, status')
     .eq('event_id', eventId)
     .ilike('email', email.trim())
     .maybeSingle()
   if (!data) return { error: 'No participant found with that email for this event.' }
+  if (!data.status || data.status === 'pending') return { error: "You're already registered and waiting for coach approval. Check your email for your QR code." }
+  if (data.status === 'rejected') return { error: 'Your registration was not accepted. Please contact the coach.' }
   return { id: data.id }
 }
 
@@ -117,6 +119,16 @@ export async function rejectParticipant(participantId: string, eventId: string) 
   if (!user) redirect('/login')
   await supabase.from('spartan_participants').update({ status: 'rejected' }).eq('id', participantId)
   revalidatePath(`/events/${eventId}`)
+}
+
+export async function updateAvatarUrl(participantId: string, avatarUrl: string): Promise<{ error: string } | { ok: true }> {
+  const service = serviceClient()
+  const { error } = await service
+    .from('spartan_participants')
+    .update({ avatar_url: avatarUrl })
+    .eq('id', participantId)
+  if (error) return { error: 'Failed to update profile photo.' }
+  return { ok: true }
 }
 
 export async function reassignGroup(participantId: string, eventId: string, groupId: string | null) {

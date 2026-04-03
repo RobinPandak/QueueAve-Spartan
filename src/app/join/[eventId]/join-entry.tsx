@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Calendar, Clock, MapPin, QrCode, Mail, ArrowLeft } from 'lucide-react'
 import { registerParticipant, findParticipantByEmail } from '@/app/actions/participants'
+import { QrScanner } from './qr-scanner'
 
 type View = 'entry' | 'form' | 'qr' | 'email'
 type Platform = 'instagram' | 'facebook' | 'x' | 'tiktok'
@@ -208,26 +209,7 @@ export function JoinEntry({ event, groups }: Props) {
 
             {/* ── QR view ── */}
             {view === 'qr' && (
-              <div className="space-y-4">
-                <button type="button" onClick={() => setView('entry')} className="flex items-center gap-1.5 text-sm cursor-pointer hover:opacity-75 transition-opacity" style={{ color: '#6B6B6B' }}>
-                  <ArrowLeft className="w-4 h-4" /> Back
-                </button>
-                <div className="rounded-2xl p-5 text-center space-y-3" style={{ backgroundColor: '#F5F0EB' }}>
-                  <QrCode className="w-10 h-10 mx-auto" style={{ color: '#FF6B4A' }} />
-                  <p className="text-sm font-semibold" style={{ color: '#1A1A1A' }}>Show your QR code</p>
-                  <p className="text-xs leading-relaxed" style={{ color: '#6B6B6B' }}>
-                    Open your registration confirmation link and show the QR code to the coach for instant check-in.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setView('email')}
-                  className="w-full text-center text-sm cursor-pointer hover:opacity-75 transition-opacity"
-                  style={{ color: '#FF6B4A' }}
-                >
-                  Rejoin with email instead
-                </button>
-              </div>
+              <QrScanner onBack={() => setView('entry')} />
             )}
 
             {/* ── Email lookup view ── */}
