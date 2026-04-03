@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import { getTrend, TREND_COLOR, TREND_LABEL, type MetricResult, type MetricType } from '@/lib/progress'
+import { getTrend, getNumericValue, parseTimeToSeconds, secondsToMmss, TREND_COLOR, type MetricResult, type MetricType } from '@/lib/progress'
 import Link from 'next/link'
+import { TrendingUp, TrendingDown, Minus, Trophy, Zap, AlertTriangle } from 'lucide-react'
 
 export default async function ProgressPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -15,55 +16,222 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
   const { data: results } = await supabase.from('spartan_results').select('*, spartan_sessions(session_date)').in('session_id', sessions?.map(s => s.id) ?? [])
 
   const allMetrics: any[] = templates?.flatMap(t => (t.spartan_metrics as any[]) ?? []) ?? []
-  const uniqueMetrics = allMetrics.filter((m, i, arr) => arr.findIndex(x => x.id === m.id) === i)
+  const uniqueMetrics = allMetrics.filter((m, i, arr) => arr.findIndex((x: any) => x.id === m.id) === i)
+
+  // Build results map per participant per metric
+  function getMetricResults(participantId: string, metricId: string): MetricResult[] {
+    return (results ?? [])
+      .filter(r => r.participant_id === participantId && r.metric_id === metricId)
+      .map(r => ({
+        sessionDate: (r.spartan_sessions as any)?.session_date ?? '',
+        sessionId: r.session_id,
+        timeValue: r.time_value,
+        countValue: r.count_value,
+        passValue: r.pass_value,
+      }))
+      .sort((a, b) => a.sessionDate.localeCompare(b.sessionDate))
+  }
+
+  function getLatestValue(pResults: MetricResult[], type: MetricType): string | null {
+    if (!pResults.length) return null
+    const latest = pResults[pResults.length - 1]
+    if (type === 'time') {
+      const secs = parseTimeToSeconds(latest.timeValue)
+      return secs !== null ? secondsToMmss(secs) : null
+    }
+    if (type === 'count') return latest.countValue != null ? String(latest.countValue) : null
+    if (type === 'pass_fail') return latest.passValue === true ? '✓' : latest.passValue === false ? '✗' : null
+    return null
+  }
+
+  // ── Summary card computations ──────────────────────────────────────
+  type ParticipantStats = {
+    id: string
+    name: string
+    improving: number
+    declining: number
+    total: number
+  }
+
+  const participantStats: ParticipantStats[] = (participants ?? []).map(p => {
+    let improving = 0, declining = 0, total = 0
+    for (const m of uniqueMetrics) {
+      const pResults = getMetricResults(p.id, m.id)
+      if (!pResults.length) continue
+      total++
+      const trend = getTrend(pResults, m.type as MetricType)
+      if (trend === 'improving') improving++
+      if (trend === 'declining') declining++
+    }
+    return { id: p.id, name: p.name, improving, declining, total }
+  })
+
+  const mostImproved = [...participantStats]
+    .filter(p => p.total > 0)
+    .sort((a, b) => b.improving - a.improving || a.declining - b.declining)[0] ?? null
+
+  const mostConsistent = [...participantStats]
+    .filter(p => p.total > 0)
+    .sort((a, b) => (b.total - b.declining) - (a.total - a.declining))[0] ?? null
+
+  const needsAttention = [...participantStats]
+    .filter(p => p.total > 0 && p.declining > 0)
+    .sort((a, b) => b.declining - a.declining)[0] ?? null
 
   return (
-    <div>
-      <div className="mb-6">
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
         <Link href={`/events/${id}`} className="text-sm cursor-pointer" style={{ color: 'var(--muted)' }}>← {event.name}</Link>
         <h2 className="text-2xl font-extrabold mt-1">Progress Dashboard</h2>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr>
-              <th className="text-left p-3 font-semibold border-b" style={{ borderColor: 'var(--border)' }}>Participant</th>
-              {uniqueMetrics.map(m => (
-                <th key={m.id} className="text-left p-3 font-semibold border-b whitespace-nowrap" style={{ borderColor: 'var(--border)' }}>{m.name}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {participants?.map(p => (
-              <tr key={p.id} className="border-b" style={{ borderColor: 'var(--border)' }}>
-                <td className="p-3">
-                  <Link href={`/events/${id}/progress/${p.id}`} className="font-medium cursor-pointer hover:text-[#FF6B4A]">{p.name}</Link>
-                </td>
-                {uniqueMetrics.map(m => {
-                  const pResults: MetricResult[] = (results ?? [])
-                    .filter(r => r.participant_id === p.id && r.metric_id === m.id)
-                    .map(r => ({
-                      sessionDate: (r.spartan_sessions as any)?.session_date ?? '',
-                      sessionId: r.session_id,
-                      timeValue: r.time_value,
-                      countValue: r.count_value,
-                      passValue: r.pass_value,
-                    }))
-                  if (!pResults.length) return <td key={m.id} className="p-3" style={{ color: 'var(--muted)' }}>—</td>
-                  const trend = getTrend(pResults, m.type as MetricType)
-                  return (
-                    <td key={m.id} className="p-3">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: `${TREND_COLOR[trend]}22`, color: TREND_COLOR[trend] }}>
-                        {TREND_LABEL[trend]}
-                      </span>
+      {/* ── Summary cards (Option D) ── */}
+      {participantStats.some(p => p.total > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Most Improved */}
+          <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(0,191,165,.12)' }}>
+              <TrendingUp className="w-5 h-5" style={{ color: '#00BFA5' }} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted)' }}>Most Improved</p>
+              {mostImproved ? (
+                <>
+                  <p className="text-base font-bold" style={{ color: 'var(--fg)' }}>{mostImproved.name}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#00896E' }}>
+                    {mostImproved.improving} metric{mostImproved.improving !== 1 ? 's' : ''} improving
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm" style={{ color: 'var(--muted)' }}>Not enough data</p>
+              )}
+            </div>
+          </div>
+
+          {/* Most Consistent */}
+          <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(255,184,0,.12)' }}>
+              <Zap className="w-5 h-5" style={{ color: '#FFB800' }} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted)' }}>Most Consistent</p>
+              {mostConsistent ? (
+                <>
+                  <p className="text-base font-bold" style={{ color: 'var(--fg)' }}>{mostConsistent.name}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#9B7800' }}>
+                    {mostConsistent.total - mostConsistent.declining} of {mostConsistent.total} metrics on track
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm" style={{ color: 'var(--muted)' }}>Not enough data</p>
+              )}
+            </div>
+          </div>
+
+          {/* Needs Attention */}
+          <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(229,72,77,.1)' }}>
+              <AlertTriangle className="w-5 h-5" style={{ color: '#E5484D' }} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted)' }}>Needs Attention</p>
+              {needsAttention ? (
+                <>
+                  <p className="text-base font-bold" style={{ color: 'var(--fg)' }}>{needsAttention.name}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#E5484D' }}>
+                    {needsAttention.declining} metric{needsAttention.declining !== 1 ? 's' : ''} declining
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm" style={{ color: '#00896E' }}>Everyone on track</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Heat map grid (Option C) ── */}
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--muted)' }}>
+          Athlete Heat Map
+        </h3>
+
+        {uniqueMetrics.length === 0 || !participants?.length ? (
+          <div className="text-center py-10 rounded-2xl border" style={{ borderColor: 'var(--border)', borderStyle: 'dashed' }}>
+            <p className="text-sm" style={{ color: 'var(--muted)' }}>No session data yet. Record a session to see progress.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: 'var(--border)' }}>
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr style={{ backgroundColor: 'var(--subtle)' }}>
+                  <th className="text-left px-4 py-3 font-semibold whitespace-nowrap" style={{ color: 'var(--muted)', borderBottom: '1px solid var(--border)', minWidth: '140px' }}>
+                    Athlete
+                  </th>
+                  {uniqueMetrics.map((m: any) => (
+                    <th key={m.id} className="text-center px-3 py-3 font-semibold whitespace-nowrap" style={{ color: 'var(--muted)', borderBottom: '1px solid var(--border)', minWidth: '110px' }}>
+                      {m.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {participants?.map((p, pi) => (
+                  <tr key={p.id} style={{ borderTop: pi > 0 ? '1px solid var(--border)' : undefined }}>
+                    <td className="px-4 py-3 font-medium whitespace-nowrap">
+                      <Link href={`/events/${id}/progress/${p.id}`}
+                        className="hover:text-[#FF6B4A] transition-colors cursor-pointer">
+                        {p.name}
+                      </Link>
                     </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    {uniqueMetrics.map((m: any) => {
+                      const pResults = getMetricResults(p.id, m.id)
+                      if (!pResults.length) {
+                        return (
+                          <td key={m.id} className="px-3 py-3 text-center">
+                            <span style={{ color: 'var(--muted)' }}>—</span>
+                          </td>
+                        )
+                      }
+                      const trend = getTrend(pResults, m.type as MetricType)
+                      const latest = getLatestValue(pResults, m.type as MetricType)
+                      const color = TREND_COLOR[trend]
+                      const TrendIcon = trend === 'improving' ? TrendingUp : trend === 'declining' ? TrendingDown : Minus
+                      return (
+                        <td key={m.id} className="px-3 py-2 text-center">
+                          <div className="inline-flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl"
+                            style={{ backgroundColor: `${color}18` }}>
+                            <div className="flex items-center gap-1">
+                              <TrendIcon className="w-3 h-3" style={{ color }} />
+                              <span className="text-xs font-bold" style={{ color }}>
+                                {latest ?? '—'}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Legend */}
+        <div className="flex items-center gap-4 mt-3 px-1">
+          {[
+            { color: TREND_COLOR.improving, label: 'Improving' },
+            { color: TREND_COLOR.flat,      label: 'No change' },
+            { color: TREND_COLOR.declining, label: 'Declining' },
+          ].map(l => (
+            <div key={l.label} className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: `${l.color}40` }} />
+              <span className="text-xs" style={{ color: 'var(--muted)' }}>{l.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
