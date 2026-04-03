@@ -88,7 +88,7 @@ export async function toggleCheckIn(participantId: string, eventId: string, chec
       checked_in_at: checkedIn ? new Date().toISOString() : null,
     })
     .eq('id', participantId)
-  revalidatePath(`/events/${eventId}/participants`)
+  revalidatePath(`/events/${eventId}`)
 }
 
 export async function findParticipantByEmail(eventId: string, email: string): Promise<{ id: string } | { error: string }> {

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { EventDashboard } from './event-dashboard'
+import { LiveView } from './live-view'
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -22,13 +23,27 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
   if (!event) notFound()
 
+  const isOwner = user?.id === event.organizer_id
+  const sessionCount = sessions?.length ?? 0
+
+  if (event.status === 'in_progress' && isOwner) {
+    return (
+      <LiveView
+        event={event}
+        participants={participants ?? []}
+        groups={groups ?? []}
+        sessionCount={sessionCount}
+      />
+    )
+  }
+
   return (
     <EventDashboard
       event={event}
       participants={participants ?? []}
       groups={groups ?? []}
-      sessionCount={sessions?.length ?? 0}
-      isOwner={user?.id === event.organizer_id}
+      sessionCount={sessionCount}
+      isOwner={isOwner}
     />
   )
 }
