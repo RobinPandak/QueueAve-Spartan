@@ -121,14 +121,20 @@ export async function rejectParticipant(participantId: string, eventId: string) 
   revalidatePath(`/events/${eventId}`)
 }
 
-export async function updateAvatarUrl(participantId: string, avatarUrl: string): Promise<{ error: string } | { ok: true }> {
+export async function uploadAvatar(participantId: string, formData: FormData): Promise<{ error: string } | { url: string }> {
+  const file = formData.get('file') as File | null
+  if (!file) return { error: 'No file provided.' }
   const service = serviceClient()
-  const { error } = await service
-    .from('spartan_participants')
-    .update({ avatar_url: avatarUrl })
-    .eq('id', participantId)
-  if (error) return { error: 'Failed to update profile photo.' }
-  return { ok: true }
+  const ext = file.name.split('.').pop() ?? 'jpg'
+  const path = `${participantId}.${ext}`
+  const bytes = await file.arrayBuffer()
+  const { error: uploadError } = await service.storage
+    .from('spartan-avatars')
+    .upload(path, bytes, { upsert: true, contentType: file.type })
+  if (uploadError) return { error: 'Failed to upload photo.' }
+  const { data: { publicUrl } } = service.storage.from('spartan-avatars').getPublicUrl(path)
+  await service.from('spartan_participants').update({ avatar_url: publicUrl }).eq('id', participantId)
+  return { url: publicUrl + '?t=' + Date.now() }
 }
 
 export async function reassignGroup(participantId: string, eventId: string, groupId: string | null) {

@@ -2,8 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { Check, Clock, Camera, Calendar, Download, MapPin, Smartphone } from 'lucide-react'
-import { updateAvatarUrl } from '@/app/actions/participants'
-import { createClient } from '@/lib/supabase/client'
+import { uploadAvatar } from '@/app/actions/participants'
 
 type EventData = { name: string; date: string | null; start_time: string | null; venue: string | null } | null
 
@@ -42,17 +41,11 @@ export function ParticipantProfile({ participantId, name, status, event, qrUrl, 
     setAvatarError(null)
     setAvatarLoading(true)
     try {
-      const supabase = createClient()
-      const ext = file.name.split('.').pop() ?? 'jpg'
-      const path = `${participantId}.${ext}`
-      const { error: uploadError } = await supabase.storage
-        .from('spartan-avatars')
-        .upload(path, file, { upsert: true, contentType: file.type })
-      if (uploadError) throw uploadError
-      const { data: { publicUrl } } = supabase.storage.from('spartan-avatars').getPublicUrl(path)
-      const result = await updateAvatarUrl(participantId, publicUrl)
+      const fd = new FormData()
+      fd.append('file', file)
+      const result = await uploadAvatar(participantId, fd)
       if ('error' in result) throw new Error(result.error)
-      setAvatarUrl(publicUrl + '?t=' + Date.now())
+      setAvatarUrl(result.url)
     } catch {
       setAvatarError('Failed to upload photo. Please try again.')
     } finally {
