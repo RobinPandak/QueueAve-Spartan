@@ -1,17 +1,30 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Clock, Camera, Download, Smartphone } from 'lucide-react'
+import { Check, Clock, Camera, Calendar, Download, MapPin, Smartphone } from 'lucide-react'
+
+type EventData = { name: string; date: string | null; start_time: string | null; venue: string | null } | null
 
 type Props = {
   participantId: string
   name: string
   status: string | null
+  event: EventData
   qrUrl: string
   profileUrl: string
 }
 
-export function ParticipantProfile({ participantId: _participantId, name, status, qrUrl }: Props) {
+function formatDate(d: string | null) {
+  if (!d) return null
+  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+}
+
+function formatTime(t: string | null) {
+  if (!t) return null
+  return new Date('1970-01-01T' + t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
+export function ParticipantProfile({ participantId: _participantId, name, status, event, qrUrl }: Props) {
   const [saving, setSaving] = useState(false)
   const isPending = !status || status === 'pending'
   const isApproved = status === 'approved'
@@ -108,6 +121,31 @@ export function ParticipantProfile({ participantId: _participantId, name, status
             {isPending ? 'Your coach will confirm your spot soon.' : `Welcome, ${name}`}
           </p>
         </div>
+
+        {/* Event info card */}
+        {event && (
+          <div className="rounded-2xl p-4 space-y-2" style={{ backgroundColor: '#F5F0EB' }}>
+            <p className="text-sm font-bold" style={{ color: '#1A1A1A' }}>{event.name}</p>
+            {event.date && (
+              <div className="flex items-center gap-2.5 text-sm" style={{ color: '#6B6B6B' }}>
+                <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
+                {formatDate(event.date)}
+              </div>
+            )}
+            {event.start_time && (
+              <div className="flex items-center gap-2.5 text-sm" style={{ color: '#6B6B6B' }}>
+                <Clock className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
+                {formatTime(event.start_time)}
+              </div>
+            )}
+            {event.venue && (
+              <div className="flex items-center gap-2.5 text-sm" style={{ color: '#6B6B6B' }}>
+                <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
+                {event.venue}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Add profile photo */}
         <button
