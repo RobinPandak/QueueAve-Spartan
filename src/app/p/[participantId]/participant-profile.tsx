@@ -46,8 +46,8 @@ export function ParticipantProfile({ participantId, name, status, event, qrUrl, 
       const result = await uploadAvatar(participantId, fd)
       if ('error' in result) throw new Error(result.error)
       setAvatarUrl(result.url)
-    } catch {
-      setAvatarError('Failed to upload photo. Please try again.')
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : 'Failed to upload photo.')
     } finally {
       setAvatarLoading(false)
       if (photoInputRef.current) photoInputRef.current.value = ''

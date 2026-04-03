@@ -123,17 +123,18 @@ export async function rejectParticipant(participantId: string, eventId: string) 
 
 export async function uploadAvatar(participantId: string, formData: FormData): Promise<{ error: string } | { url: string }> {
   const file = formData.get('file') as File | null
-  if (!file) return { error: 'No file provided.' }
+  if (!file || file.size === 0) return { error: 'No file provided.' }
   const service = serviceClient()
-  const ext = file.name.split('.').pop() ?? 'jpg'
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
   const path = `${participantId}.${ext}`
   const bytes = await file.arrayBuffer()
   const { error: uploadError } = await service.storage
     .from('spartan-avatars')
     .upload(path, bytes, { upsert: true, contentType: file.type })
-  if (uploadError) return { error: 'Failed to upload photo.' }
+  if (uploadError) return { error: uploadError.message }
   const { data: { publicUrl } } = service.storage.from('spartan-avatars').getPublicUrl(path)
-  await service.from('spartan_participants').update({ avatar_url: publicUrl }).eq('id', participantId)
+  const { error: dbError } = await service.from('spartan_participants').update({ avatar_url: publicUrl }).eq('id', participantId)
+  if (dbError) return { error: dbError.message }
   return { url: publicUrl + '?t=' + Date.now() }
 }
 
