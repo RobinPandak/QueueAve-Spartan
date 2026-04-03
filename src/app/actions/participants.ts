@@ -47,7 +47,10 @@ export async function registerParticipant(
     .select()
     .single()
 
-  if (error || !data) return { error: 'Registration failed. Please try again.' }
+  if (error || !data) {
+    console.error('[registerParticipant] DB error:', JSON.stringify(error))
+    return { error: `Registration failed: ${error?.message ?? 'unknown error'}` }
+  }
   redirect(`/p/${data.id}`)
 }
 
