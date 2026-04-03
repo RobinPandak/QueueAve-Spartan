@@ -15,7 +15,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     { data: sessions },
   ] = await Promise.all([
     supabase.from('spartan_events').select('id, name, status, date, venue, organizer_id').eq('id', id).single(),
-    supabase.from('spartan_participants').select('id, name, checked_in, group_id, status').eq('event_id', id).order('name'),
+    supabase.from('spartan_participants').select('id, name, checked_in, group_id, status, email').eq('event_id', id).order('name'),
     supabase.from('spartan_groups').select('id, name').eq('event_id', id).order('sort_order'),
     supabase.from('spartan_sessions').select('id').eq('event_id', id),
   ])

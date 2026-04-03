@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 export type WizardData = {
   name: string
@@ -68,6 +69,14 @@ export async function createEvent(data: WizardData) {
   }
 
   redirect(`/events/${event.id}`)
+}
+
+export async function updateEventStatus(eventId: string, status: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  await supabase.from('spartan_events').update({ status }).eq('id', eventId).eq('organizer_id', user.id)
+  revalidatePath(`/events/${eventId}`)
 }
 
 export async function updateEvent(id: string, data: { name: string; date: string; start_time?: string; venue?: string; description?: string }) {

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { sendRegistrationEmail } from '@/lib/email'
+import { sendRegistrationEmail, sendEventGuideEmail } from '@/lib/email'
 
 function serviceClient() {
   return createServiceClient(
@@ -136,6 +136,78 @@ export async function uploadAvatar(participantId: string, formData: FormData): P
   const { error: dbError } = await service.from('spartan_participants').update({ avatar_url: publicUrl }).eq('id', participantId)
   if (dbError) return { error: dbError.message }
   return { url: publicUrl + '?t=' + Date.now() }
+}
+
+export async function addParticipantManually(
+  eventId: string,
+  name: string,
+  email: string | null,
+  groupId: string | null,
+): Promise<{ error: string } | { ok: true }> {
+  if (!name.trim()) return { error: 'Name is required.' }
+  const service = serviceClient()
+  const { data: existing } = await service
+    .from('spartan_participants')
+    .select('id')
+    .eq('event_id', eventId)
+    .ilike('name', name.trim())
+    .maybeSingle()
+  if (existing) return { error: 'Someone with this name is already registered.' }
+  const { error } = await service
+    .from('spartan_participants')
+    .insert({ event_id: eventId, name: name.trim(), email: email || null, group_id: groupId || null, status: 'approved' })
+  if (error) return { error: 'Failed to add athlete.' }
+  revalidatePath(`/events/${eventId}`)
+  return { ok: true }
+}
+
+export async function removeParticipant(participantId: string, eventId: string): Promise<{ error: string } | { ok: true }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  const { error } = await supabase.from('spartan_participants').delete().eq('id', participantId)
+  if (error) return { error: 'Failed to remove athlete.' }
+  revalidatePath(`/events/${eventId}`)
+  return { ok: true }
+}
+
+export async function approveAllParticipants(eventId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  await supabase.from('spartan_participants').update({ status: 'approved' }).eq('event_id', eventId).or('status.is.null,status.eq.pending')
+  revalidatePath(`/events/${eventId}`)
+}
+
+export async function sendEventGuide(
+  eventId: string,
+  guide: { arrivalNote: string; parkingNote: string; accessNote: string; repName: string },
+): Promise<{ sent: number; skipped: number }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  const service = serviceClient()
+  const [{ data: participants }, { data: event }] = await Promise.all([
+    service.from('spartan_participants').select('name, email').eq('event_id', eventId).eq('status', 'approved'),
+    service.from('spartan_events').select('name, date, start_time, venue').eq('id', eventId).single(),
+  ])
+  let sent = 0, skipped = 0
+  for (const p of participants ?? []) {
+    if (!p.email) { skipped++; continue }
+    try {
+      await sendEventGuideEmail({
+        to: p.email,
+        name: p.name,
+        eventName: event?.name ?? 'Spartan Event',
+        eventDate: event?.date ?? null,
+        eventStartTime: event?.start_time ?? null,
+        eventVenue: event?.venue ?? null,
+        ...guide,
+      })
+      sent++
+    } catch { skipped++ }
+  }
+  return { sent, skipped }
 }
 
 export async function reassignGroup(participantId: string, eventId: string, groupId: string | null) {
