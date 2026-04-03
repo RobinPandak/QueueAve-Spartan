@@ -71,12 +71,20 @@ export async function createEvent(data: WizardData) {
   redirect(`/events/${event.id}`)
 }
 
-export async function updateEventStatus(eventId: string, status: string) {
+export async function updateEventStatus(eventId: string, status: string): Promise<{ error: string } | { ok: true }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
-  await supabase.from('spartan_events').update({ status }).eq('id', eventId).eq('organizer_id', user.id)
+  // Verify ownership first with authenticated client
+  const { data: event } = await supabase.from('spartan_events').select('id').eq('id', eventId).eq('organizer_id', user.id).single()
+  if (!event) return { error: 'Not authorized.' }
+  // Use service client to bypass RLS for the update
+  const { createClient: createServiceClient } = await import('@supabase/supabase-js')
+  const service = createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!)
+  const { error } = await service.from('spartan_events').update({ status }).eq('id', eventId)
+  if (error) return { error: error.message }
   revalidatePath(`/events/${eventId}`)
+  return { ok: true }
 }
 
 export async function updateEvent(id: string, data: { name: string; date: string; start_time?: string; venue?: string; description?: string }) {

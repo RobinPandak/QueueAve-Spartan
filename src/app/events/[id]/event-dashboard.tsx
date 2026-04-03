@@ -82,6 +82,7 @@ export function EventDashboard({ event, participants, groups, sessionCount, isOw
 
   // Start event
   const [isStarting, setIsStarting] = useState(false)
+  const [startError, setStartError] = useState<string | null>(null)
 
   // Add player
   const [showAddPlayer, setShowAddPlayer] = useState(false)
@@ -161,9 +162,15 @@ export function EventDashboard({ event, participants, groups, sessionCount, isOw
 
   const handleStartEvent = async () => {
     setIsStarting(true)
-    await updateEventStatus(event.id, 'in_progress')
-    router.refresh()
-    setIsStarting(false)
+    setStartError(null)
+    const result = await updateEventStatus(event.id, 'in_progress')
+    if ('error' in result) {
+      setStartError(result.error)
+      setIsStarting(false)
+    } else {
+      router.refresh()
+      setIsStarting(false)
+    }
   }
 
   const handleAddPlayer = async (e: React.FormEvent) => {
@@ -315,15 +322,20 @@ export function EventDashboard({ event, participants, groups, sessionCount, isOw
 
             {/* Start Event */}
             {isOpen && (
-              <button
-                onClick={handleStartEvent}
-                disabled={isStarting}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-all cursor-pointer hover:opacity-90 disabled:opacity-50 ml-auto"
-                style={{ backgroundColor: '#FF6B4A' }}
-              >
-                <Play className="w-3.5 h-3.5" />
-                {isStarting ? 'Starting...' : 'Start Event'}
-              </button>
+              <div className="ml-auto flex items-center gap-2">
+                {startError && (
+                  <p className="text-xs" style={{ color: '#E5484D' }}>{startError}</p>
+                )}
+                <button
+                  onClick={handleStartEvent}
+                  disabled={isStarting}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-all cursor-pointer hover:opacity-90 disabled:opacity-50"
+                  style={{ backgroundColor: '#FF6B4A' }}
+                >
+                  <Play className="w-3.5 h-3.5" />
+                  {isStarting ? 'Starting...' : 'Start Event'}
+                </button>
+              </div>
             )}
           </div>
 
