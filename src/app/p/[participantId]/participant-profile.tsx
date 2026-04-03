@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import { Check, Clock, Camera, Download, Smartphone, ArrowRight } from 'lucide-react'
+import { Check, Clock, Camera, Download, Smartphone } from 'lucide-react'
 
 type Props = {
   participantId: string
@@ -12,22 +11,75 @@ type Props = {
   profileUrl: string
 }
 
-export function ParticipantProfile({ participantId, name, status, qrUrl, profileUrl }: Props) {
+export function ParticipantProfile({ participantId: _participantId, name, status, qrUrl }: Props) {
+  const [saving, setSaving] = useState(false)
   const isPending = !status || status === 'pending'
   const isApproved = status === 'approved'
-  const [saving, setSaving] = useState(false)
 
   async function saveQr() {
     setSaving(true)
     try {
-      const res = await fetch(qrUrl)
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
+      const canvas = document.createElement('canvas')
+      const W = 480
+      const PADDING = 32
+      const QR_SIZE = 280
+      const LOGO_SIZE = 48
+      canvas.width = W
+      canvas.height = 460
+      const ctx = canvas.getContext('2d')!
+
+      // Background
+      ctx.fillStyle = '#FDF8F5'
+      ctx.fillRect(0, 0, W, canvas.height)
+
+      // Top coral bar
+      ctx.fillStyle = '#FF6B4A'
+      ctx.fillRect(0, 0, W, 6)
+
+      // Load logo
+      const logo = new Image()
+      logo.crossOrigin = 'anonymous'
+      await new Promise<void>(res => { logo.onload = () => res(); logo.onerror = () => res(); logo.src = '/logo.svg' })
+      const logoX = (W - LOGO_SIZE) / 2
+      ctx.drawImage(logo, logoX, 24, LOGO_SIZE, LOGO_SIZE)
+
+      // "Spartan by QueueAve" text
+      ctx.fillStyle = '#FF6B4A'
+      ctx.font = '700 11px -apple-system, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.letterSpacing = '2px'
+      ctx.fillText('SPARTAN BY QUEUEAVE', W / 2, 94)
+
+      // QR code
+      const qr = new Image()
+      qr.crossOrigin = 'anonymous'
+      await new Promise<void>(res => { qr.onload = () => res(); qr.onerror = () => res(); qr.src = qrUrl })
+      const qrX = (W - QR_SIZE) / 2
+      // White card behind QR
+      ctx.fillStyle = '#FFFFFF'
+      const cardPad = 16
+      roundRect(ctx, qrX - cardPad, 108, QR_SIZE + cardPad * 2, QR_SIZE + cardPad * 2, 16)
+      ctx.fill()
+      ctx.drawImage(qr, qrX, 124, QR_SIZE, QR_SIZE)
+
+      // Athlete name
+      ctx.fillStyle = '#1A1A1A'
+      ctx.font = '800 18px -apple-system, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.letterSpacing = '0px'
+      ctx.fillText(name, W / 2, 430)
+
+      // Footer
+      ctx.fillStyle = '#A0A0A0'
+      ctx.font = '500 11px -apple-system, sans-serif'
+      ctx.fillText('spartan.queueave.com', W / 2, 452)
+
+      // Download
+      const url = canvas.toDataURL('image/png')
       const a = document.createElement('a')
       a.href = url
       a.download = `spartan-qr-${name.replace(/\s+/g, '-').toLowerCase()}.png`
       a.click()
-      URL.revokeObjectURL(url)
     } finally {
       setSaving(false)
     }
@@ -97,30 +149,13 @@ export function ParticipantProfile({ participantId, name, status, qrUrl, profile
               type="button"
               className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-semibold cursor-pointer transition-all hover:opacity-80"
               style={{ backgroundColor: 'rgba(255,107,74,.06)', color: '#FF6B4A' }}
-              onClick={() => {
-                if ('standalone' in navigator) {
-                  alert('To add to home screen: tap the Share button in your browser, then "Add to Home Screen".')
-                }
-              }}
+              onClick={() => alert('To add to home screen: tap the Share button in your browser, then "Add to Home Screen".')}
             >
               <Smartphone className="w-4 h-4" />
               Save to Home Screen
             </button>
           </div>
         </div>
-
-        {/* Progress link */}
-        <Link
-          href={`/p/${participantId}/progress`}
-          className="flex items-center justify-between w-full px-5 py-4 rounded-2xl transition-all hover:opacity-80"
-          style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(0,0,0,.06)' }}
-        >
-          <div>
-            <p className="text-sm font-semibold" style={{ color: '#1A1A1A' }}>My progress</p>
-            <p className="text-xs mt-0.5" style={{ color: '#6B6B6B' }}>View your training results and trends</p>
-          </div>
-          <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: '#A0A0A0' }} />
-        </Link>
 
         {/* Footer */}
         <p className="text-center text-xs" style={{ color: '#A0A0A0' }}>
@@ -130,4 +165,19 @@ export function ParticipantProfile({ participantId, name, status, qrUrl, profile
       </div>
     </div>
   )
+}
+
+// Helper for rounded rectangles
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.closePath()
 }

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { sendRegistrationEmail } from '@/lib/email'
 
 function serviceClient() {
   return createServiceClient(
@@ -48,6 +49,31 @@ export async function registerParticipant(
     .single()
 
   if (error || !data) return { error: 'Registration failed. Please try again.' }
+
+  // Send registration email (non-blocking)
+  if (email) {
+    const { data: event } = await service
+      .from('spartan_events')
+      .select('name, date, start_time, venue')
+      .eq('id', eventId)
+      .single()
+
+    const host = process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, '') ?? 'spartan.queueave.com'
+    const profileUrl = `https://${host.replace('localhost:3001', 'spartan.queueave.com')}/p/${data.id}`
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(profileUrl)}&bgcolor=ffffff&color=1A1A1A&margin=12`
+
+    sendRegistrationEmail({
+      to: email,
+      name: name.trim(),
+      eventName: event?.name ?? 'Spartan Event',
+      eventDate: event?.date ?? null,
+      eventStartTime: event?.start_time ?? null,
+      eventVenue: event?.venue ?? null,
+      profileUrl,
+      qrUrl,
+    })
+  }
+
   redirect(`/p/${data.id}`)
 }
 
