@@ -93,16 +93,75 @@ export async function toggleCheckIn(participantId: string, eventId: string, chec
 
 export async function findParticipantByEmail(eventId: string, email: string): Promise<{ id: string } | { error: string }> {
   const service = serviceClient()
-  const { data } = await service
+
+  // 1. Check if already registered for this event
+  const { data: existing } = await service
     .from('spartan_participants')
     .select('id, status')
     .eq('event_id', eventId)
     .ilike('email', email.trim())
     .maybeSingle()
-  if (!data) return { error: 'No participant found with that email for this event.' }
-  if (!data.status || data.status === 'pending') return { error: "You're already registered and waiting for coach approval. Check your email for your QR code." }
-  if (data.status === 'rejected') return { error: 'Your registration was not accepted. Please contact the coach.' }
-  return { id: data.id }
+
+  if (existing) {
+    if (!existing.status || existing.status === 'pending') return { error: "You're already registered and waiting for coach approval. Check your email for your QR code." }
+    if (existing.status === 'rejected') return { error: 'Your registration was not accepted. Please contact the coach.' }
+    return { id: existing.id }
+  }
+
+  // 2. Not in this event — look up player profile across all events
+  const { data: profile } = await service
+    .from('spartan_participants')
+    .select('name, email, phone, social_handle, avatar_url')
+    .ilike('email', email.trim())
+    .eq('status', 'approved')
+    .limit(1)
+    .maybeSingle()
+
+  if (!profile) return { error: 'No player profile found with that email. Create your profile to join.' }
+
+  // 3. Auto-register for this event using existing profile data
+  const { data: newP, error: insertError } = await service
+    .from('spartan_participants')
+    .insert({
+      event_id: eventId,
+      name: profile.name,
+      email: profile.email,
+      phone: profile.phone,
+      social_handle: profile.social_handle,
+      avatar_url: profile.avatar_url,
+      status: 'approved',
+    })
+    .select()
+    .single()
+
+  if (insertError || !newP) return { error: 'Failed to join event. Please try again.' }
+
+  // 4. Send registration email for the new event (non-blocking)
+  if (profile.email) {
+    const { data: event } = await service
+      .from('spartan_events')
+      .select('name, date, start_time, venue')
+      .eq('id', eventId)
+      .single()
+
+    const host = process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, '') ?? 'spartan.queueave.com'
+    const profileUrl = `https://${host.replace('localhost:3001', 'spartan.queueave.com')}/p/${newP.id}`
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(profileUrl)}&bgcolor=ffffff&color=1A1A1A&margin=12`
+
+    sendRegistrationEmail({
+      to: profile.email,
+      name: profile.name,
+      eventName: event?.name ?? 'Spartan Event',
+      eventDate: event?.date ?? null,
+      eventStartTime: event?.start_time ?? null,
+      eventVenue: event?.venue ?? null,
+      profileUrl,
+      qrUrl,
+    })
+  }
+
+  revalidatePath(`/events/${eventId}`)
+  return { id: newP.id }
 }
 
 export async function approveParticipant(participantId: string, eventId: string) {

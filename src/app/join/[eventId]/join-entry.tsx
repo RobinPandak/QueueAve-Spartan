@@ -184,7 +184,7 @@ export function JoinEntry({ event, groups }: Props) {
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-bold" style={{ color: '#1A1A1A' }}>Use Email</p>
-                    <p className="text-xs" style={{ color: '#6B6B6B' }}>Rejoin with your registered email</p>
+                    <p className="text-xs" style={{ color: '#6B6B6B' }}>Join any event with your player email</p>
                   </div>
                 </button>
 
@@ -219,7 +219,7 @@ export function JoinEntry({ event, groups }: Props) {
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
                 <p className="text-sm text-center" style={{ color: '#6B6B6B' }}>
-                  Enter the email you used when you first joined.
+                  Enter your player email to join this event.
                 </p>
                 <input
                   type="email"
@@ -243,7 +243,7 @@ export function JoinEntry({ event, groups }: Props) {
                 >
                   {emailLoading
                     ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Looking up...</>
-                    : 'Rejoin Event'}
+                    : 'Join Event'}
                 </button>
               </form>
             )}
