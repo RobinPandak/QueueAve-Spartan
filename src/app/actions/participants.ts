@@ -224,20 +224,24 @@ export async function rejectParticipant(participantId: string, eventId: string) 
 }
 
 export async function uploadAvatar(playerId: string, formData: FormData): Promise<{ error: string } | { url: string }> {
-  const file = formData.get('file') as File | null
-  if (!file || file.size === 0) return { error: 'No file provided.' }
-  const service = serviceClient()
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-  const path = `${playerId}.${ext}`
-  const bytes = await file.arrayBuffer()
-  const { error: uploadError } = await service.storage
-    .from('spartan-avatars')
-    .upload(path, bytes, { upsert: true, contentType: file.type })
-  if (uploadError) return { error: uploadError.message }
-  const { data: { publicUrl } } = service.storage.from('spartan-avatars').getPublicUrl(path)
-  const { error: dbError } = await service.from('spartan_players').update({ avatar_url: publicUrl }).eq('id', playerId)
-  if (dbError) return { error: dbError.message }
-  return { url: publicUrl + '?t=' + Date.now() }
+  try {
+    const file = formData.get('file') as File | null
+    if (!file || file.size === 0) return { error: 'No file provided.' }
+    const service = serviceClient()
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+    const path = `avatars/${playerId}.${ext}`
+    const bytes = await file.arrayBuffer()
+    const { error: uploadError } = await service.storage
+      .from('player-avatars')
+      .upload(path, bytes, { upsert: true, contentType: file.type })
+    if (uploadError) return { error: uploadError.message }
+    const { data: { publicUrl } } = service.storage.from('player-avatars').getPublicUrl(path)
+    const { error: dbError } = await service.from('spartan_players').update({ avatar_url: publicUrl }).eq('id', playerId)
+    if (dbError) return { error: dbError.message }
+    return { url: publicUrl + '?t=' + Date.now() }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Upload failed.' }
+  }
 }
 
 export async function addParticipantManually(
