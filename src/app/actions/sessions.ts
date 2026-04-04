@@ -49,7 +49,6 @@ export async function saveResults(sessionId: string, eventId: string, entries: R
 }
 
 export async function saveAthleteResults(
-  sessionId: string,
   eventId: string,
   participantId: string,
   entries: { metricId: string; metricType: 'time' | 'count' | 'pass_fail'; value: string | boolean | null }[]
@@ -57,6 +56,38 @@ export async function saveAthleteResults(
   try {
     const supabase = await createClient()
     await assertOwner(supabase, eventId)
+
+    // Find or auto-create today's session
+    const today = new Date().toISOString().split('T')[0]
+    let sessionId: string
+
+    const { data: existing } = await supabase
+      .from('spartan_sessions')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('session_date', today)
+      .limit(1)
+      .single()
+
+    if (existing) {
+      sessionId = existing.id
+    } else {
+      const { data: template } = await supabase
+        .from('spartan_session_templates')
+        .select('id')
+        .eq('event_id', eventId)
+        .limit(1)
+        .single()
+      if (!template) return { error: 'No templates configured for this event. Set up a template first.' }
+      const { data: newSession, error: sessErr } = await supabase
+        .from('spartan_sessions')
+        .insert({ event_id: eventId, template_id: template.id, session_date: today })
+        .select('id')
+        .single()
+      if (sessErr || !newSession) return { error: 'Failed to create session.' }
+      sessionId = newSession.id
+    }
+
     const rows = entries
       .filter(e => e.value !== null && e.value !== '')
       .map(e => ({
@@ -67,6 +98,7 @@ export async function saveAthleteResults(
         count_value: e.metricType === 'count' ? parseInt(e.value as string) : null,
         pass_value: e.metricType === 'pass_fail' ? e.value as boolean : null,
       }))
+
     const { error } = await supabase.from('spartan_results').upsert(rows, { onConflict: 'session_id,participant_id,metric_id' })
     if (error) return { error: error.message }
     revalidatePath(`/events/${eventId}/progress`)

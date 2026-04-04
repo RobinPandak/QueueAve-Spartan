@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { getTrend, parseTimeToSeconds, secondsToMmss, TREND_COLOR, type MetricResult, type MetricType } from '@/lib/progress'
 import Link from 'next/link'
 import { TrendingUp, Zap, AlertTriangle } from 'lucide-react'
-import { HeatMap, type HeatCell, type RawResult } from './heat-map'
+import { HeatMap, type HeatCell, type TodayResult } from './heat-map'
 
 export default async function ProgressPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -168,7 +168,6 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
             eventId={id}
             participants={participants}
             metrics={uniqueMetrics.map((m: any) => ({ id: m.id, name: m.name, type: m.type as 'time' | 'count' | 'pass_fail' }))}
-            sessions={(sessions ?? []).map(s => ({ id: s.id, session_date: s.session_date, template_id: s.template_id }))}
             cells={participants.flatMap(p =>
               uniqueMetrics.map((m: any): HeatCell => {
                 const pResults = getMetricResults(p.id, m.id)
@@ -178,14 +177,20 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
                 return { participantId: p.id, metricId: m.id, latest, trend }
               })
             )}
-            rawResults={(results ?? []).map((r): RawResult => ({
-              sessionId: r.session_id,
-              participantId: r.participant_id,
-              metricId: r.metric_id,
-              timeValue: r.time_value,
-              countValue: r.count_value,
-              passValue: r.pass_value,
-            }))}
+            todayResults={(() => {
+              const today = new Date().toISOString().split('T')[0]
+              const todaySession = sessions?.find(s => s.session_date === today)
+              if (!todaySession) return []
+              return (results ?? [])
+                .filter(r => r.session_id === todaySession.id)
+                .map((r): TodayResult => ({
+                  participantId: r.participant_id,
+                  metricId: r.metric_id,
+                  timeValue: r.time_value,
+                  countValue: r.count_value,
+                  passValue: r.pass_value,
+                }))
+            })()}
           />
         )}
 
