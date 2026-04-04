@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import { getTrend, getNumericValue, parseTimeToSeconds, secondsToMmss, TREND_COLOR, type MetricResult, type MetricType } from '@/lib/progress'
+import { getTrend, parseTimeToSeconds, secondsToMmss, TREND_COLOR, type MetricResult, type MetricType } from '@/lib/progress'
 import Link from 'next/link'
-import { TrendingUp, TrendingDown, Minus, Trophy, Zap, AlertTriangle } from 'lucide-react'
+import { TrendingUp, Zap, AlertTriangle } from 'lucide-react'
+import { HeatMap, type HeatCell, type RawResult } from './heat-map'
 
 export default async function ProgressPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -152,7 +153,7 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
         </div>
       )}
 
-      {/* ── Heat map grid (Option C) ── */}
+      {/* ── Heat map grid ── */}
       <div>
         <h3 className="text-sm font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--muted)' }}>
           Athlete Heat Map
@@ -163,76 +164,46 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
             <p className="text-sm" style={{ color: 'var(--muted)' }}>No session data yet. Record a session to see progress.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: 'var(--border)' }}>
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr style={{ backgroundColor: 'var(--subtle)' }}>
-                  <th className="text-left px-4 py-3 font-semibold whitespace-nowrap" style={{ color: 'var(--muted)', borderBottom: '1px solid var(--border)', minWidth: '140px' }}>
-                    Athlete
-                  </th>
-                  {uniqueMetrics.map((m: any) => (
-                    <th key={m.id} className="text-center px-3 py-3 font-semibold whitespace-nowrap" style={{ color: 'var(--muted)', borderBottom: '1px solid var(--border)', minWidth: '110px' }}>
-                      {m.name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {participants?.map((p, pi) => (
-                  <tr key={p.id} style={{ borderTop: pi > 0 ? '1px solid var(--border)' : undefined }}>
-                    <td className="px-4 py-3 font-medium whitespace-nowrap">
-                      <Link href={`/events/${id}/progress/${p.id}`}
-                        className="hover:text-[#FF6B4A] transition-colors cursor-pointer">
-                        {p.name}
-                      </Link>
-                    </td>
-                    {uniqueMetrics.map((m: any) => {
-                      const pResults = getMetricResults(p.id, m.id)
-                      if (!pResults.length) {
-                        return (
-                          <td key={m.id} className="px-3 py-3 text-center">
-                            <span style={{ color: 'var(--muted)' }}>—</span>
-                          </td>
-                        )
-                      }
-                      const trend = getTrend(pResults, m.type as MetricType)
-                      const latest = getLatestValue(pResults, m.type as MetricType)
-                      const color = TREND_COLOR[trend]
-                      const TrendIcon = trend === 'improving' ? TrendingUp : trend === 'declining' ? TrendingDown : Minus
-                      return (
-                        <td key={m.id} className="px-3 py-2 text-center">
-                          <div className="inline-flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl"
-                            style={{ backgroundColor: `${color}18` }}>
-                            <div className="flex items-center gap-1">
-                              <TrendIcon className="w-3 h-3" style={{ color }} />
-                              <span className="text-xs font-bold" style={{ color }}>
-                                {latest ?? '—'}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <HeatMap
+            eventId={id}
+            participants={participants}
+            metrics={uniqueMetrics.map((m: any) => ({ id: m.id, name: m.name, type: m.type as 'time' | 'count' | 'pass_fail' }))}
+            sessions={(sessions ?? []).map(s => ({ id: s.id, session_date: s.session_date, template_id: s.template_id }))}
+            cells={participants.flatMap(p =>
+              uniqueMetrics.map((m: any): HeatCell => {
+                const pResults = getMetricResults(p.id, m.id)
+                if (!pResults.length) return { participantId: p.id, metricId: m.id, latest: null, trend: 'none' }
+                const trend = getTrend(pResults, m.type as MetricType)
+                const latest = getLatestValue(pResults, m.type as MetricType)
+                return { participantId: p.id, metricId: m.id, latest, trend }
+              })
+            )}
+            rawResults={(results ?? []).map((r): RawResult => ({
+              sessionId: r.session_id,
+              participantId: r.participant_id,
+              metricId: r.metric_id,
+              timeValue: r.time_value,
+              countValue: r.count_value,
+              passValue: r.pass_value,
+            }))}
+          />
         )}
 
         {/* Legend */}
-        <div className="flex items-center gap-4 mt-3 px-1">
-          {[
-            { color: TREND_COLOR.improving, label: 'Improving' },
-            { color: TREND_COLOR.flat,      label: 'No change' },
-            { color: TREND_COLOR.declining, label: 'Declining' },
-          ].map(l => (
-            <div key={l.label} className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: `${l.color}40` }} />
-              <span className="text-xs" style={{ color: 'var(--muted)' }}>{l.label}</span>
-            </div>
-          ))}
-        </div>
+        {uniqueMetrics.length > 0 && participants?.length > 0 && (
+          <div className="flex items-center gap-4 mt-3 px-1">
+            {[
+              { color: TREND_COLOR.improving, label: 'Improving' },
+              { color: TREND_COLOR.flat,      label: 'No change' },
+              { color: TREND_COLOR.declining, label: 'Declining' },
+            ].map(l => (
+              <div key={l.label} className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: `${l.color}40` }} />
+                <span className="text-xs" style={{ color: 'var(--muted)' }}>{l.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -47,3 +47,31 @@ export async function saveResults(sessionId: string, eventId: string, entries: R
   revalidatePath(`/events/${eventId}/sessions/${sessionId}`)
   redirect(`/events/${eventId}/sessions/${sessionId}`)
 }
+
+export async function saveAthleteResults(
+  sessionId: string,
+  eventId: string,
+  participantId: string,
+  entries: { metricId: string; metricType: 'time' | 'count' | 'pass_fail'; value: string | boolean | null }[]
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const supabase = await createClient()
+    await assertOwner(supabase, eventId)
+    const rows = entries
+      .filter(e => e.value !== null && e.value !== '')
+      .map(e => ({
+        session_id: sessionId,
+        participant_id: participantId,
+        metric_id: e.metricId,
+        time_value: e.metricType === 'time' ? (e.value as string) : null,
+        count_value: e.metricType === 'count' ? parseInt(e.value as string) : null,
+        pass_value: e.metricType === 'pass_fail' ? e.value as boolean : null,
+      }))
+    const { error } = await supabase.from('spartan_results').upsert(rows, { onConflict: 'session_id,participant_id,metric_id' })
+    if (error) return { error: error.message }
+    revalidatePath(`/events/${eventId}/progress`)
+    return { ok: true }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Failed to save results.' }
+  }
+}
