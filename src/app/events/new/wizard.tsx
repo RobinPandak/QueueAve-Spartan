@@ -27,6 +27,37 @@ const STEP_HEADINGS: Record<number, string> = {
 
 const NAME_SUGGESTIONS = ['Spartan Sprint', 'Obstacle Trial', 'Team Qualifier', 'Pre-season Camp']
 
+type Obstacle = { name: string; type: 'time' | 'count' | 'pass_fail'; unit?: string; isDefault?: boolean }
+
+const SPARTAN_OBSTACLES: Obstacle[] = [
+  // ── Common (shown by default) ──────────────────────
+  { name: 'Rope Climb',         type: 'pass_fail', isDefault: true },
+  { name: 'Monkey Bars',        type: 'pass_fail', isDefault: true },
+  { name: 'Spear Throw',        type: 'pass_fail', isDefault: true },
+  { name: 'Barbed Wire Crawl',  type: 'pass_fail', isDefault: true },
+  { name: 'Bucket Carry',       type: 'pass_fail', isDefault: true },
+  { name: 'Atlas Stone Carry',  type: 'pass_fail', isDefault: true },
+  { name: 'Hercules Hoist',     type: 'pass_fail', isDefault: true },
+  { name: 'Burpee Penalty',     type: 'count',     unit: 'reps', isDefault: true },
+  { name: 'Course Time',        type: 'time',      isDefault: true },
+  { name: 'Sprint 400m',        type: 'time',      isDefault: true },
+  // ── More obstacles ─────────────────────────────────
+  { name: 'Multi-Rig',          type: 'pass_fail' },
+  { name: 'Z-Wall',             type: 'pass_fail' },
+  { name: 'A-Frame Cargo Net',  type: 'pass_fail' },
+  { name: 'Inverted Wall',      type: 'pass_fail' },
+  { name: 'Slip Wall',          type: 'pass_fail' },
+  { name: 'Tyrolean Traverse',  type: 'pass_fail' },
+  { name: 'Plate Drag',         type: 'pass_fail' },
+  { name: 'Sandbag Carry',      type: 'pass_fail' },
+  { name: 'Box Jump',           type: 'pass_fail' },
+  { name: 'Stairway to Sparta', type: 'pass_fail' },
+  { name: 'Pull-ups',           type: 'count',     unit: 'reps' },
+  { name: 'Obstacles Cleared',  type: 'count' },
+]
+
+const TEMPLATE_SUGGESTIONS = ['Obstacle Course Training', 'Strength Circuit', 'Sprint Drills', 'Full Session']
+
 const METRIC_CHIPS: Record<string, { bg: string; color: string }> = {
   time:      { bg: 'rgba(0,191,165,.12)',   color: '#00896E' },
   count:     { bg: 'rgba(255,184,0,.12)',   color: '#9B7800' },
@@ -56,6 +87,7 @@ export function EventWizard() {
   const [description, setDescription] = useState('')
   const [groups, setGroups]        = useState<Group[]>([{ name: '' }])
   const [templates, setTemplates]  = useState<Template[]>([{ name: '', metrics: [{ name: '', type: 'time' }] }])
+  const [showMoreChips, setShowMoreChips] = useState<boolean[]>([false])
 
   useEffect(() => { if (step === 1) nameRef.current?.focus() }, [step])
 
@@ -80,8 +112,30 @@ export function EventWizard() {
   const updateGroup  = (i: number, field: keyof Group, val: string) =>
     setGroups(g => g.map((gr, idx) => idx === i ? { ...gr, [field]: val } : gr))
 
-  const addTemplate        = () => setTemplates(t => [...t, { name: '', metrics: [{ name: '', type: 'time' }] }])
-  const removeTemplate     = (ti: number) => setTemplates(t => t.filter((_, i) => i !== ti))
+  const addTemplate        = () => {
+    setTemplates(t => [...t, { name: '', metrics: [{ name: '', type: 'time' }] }])
+    setShowMoreChips(s => [...s, false])
+  }
+  const removeTemplate     = (ti: number) => {
+    setTemplates(t => t.filter((_, i) => i !== ti))
+    setShowMoreChips(s => s.filter((_, i) => i !== ti))
+  }
+
+  function addPresetMetric(ti: number, obs: Obstacle) {
+    setTemplates(t => t.map((tmpl, i) => {
+      if (i !== ti) return tmpl
+      const exists = tmpl.metrics.some(m => m.name === obs.name)
+      if (exists) {
+        const filtered = tmpl.metrics.filter(m => m.name !== obs.name)
+        return { ...tmpl, metrics: filtered.length ? filtered : [{ name: '', type: 'time' }] }
+      }
+      const emptyIdx = tmpl.metrics.findIndex(m => !m.name.trim())
+      if (emptyIdx >= 0) {
+        return { ...tmpl, metrics: tmpl.metrics.map((m, j) => j === emptyIdx ? { name: obs.name, type: obs.type, unit: obs.unit } : m) }
+      }
+      return { ...tmpl, metrics: [...tmpl.metrics, { name: obs.name, type: obs.type, unit: obs.unit }] }
+    }))
+  }
   const updateTemplateName = (ti: number, val: string) =>
     setTemplates(t => t.map((tmpl, i) => i === ti ? { ...tmpl, name: val } : tmpl))
   const addMetric    = (ti: number) =>
@@ -411,18 +465,81 @@ export function EventWizard() {
                       <button onClick={() => removeTemplate(ti)} className="px-2 text-sm cursor-pointer hover:opacity-60" style={{ color: 'var(--muted)' }}>✕</button>
                     )}
                   </div>
-                  {tmpl.metrics.some(m => m.name.trim()) && (
+
+                  {/* Template name suggestions */}
+                  {!tmpl.name.trim() && (
                     <div className="flex flex-wrap gap-1.5">
-                      {tmpl.metrics.filter(m => m.name.trim()).map((m, mi) => {
-                        const chip = METRIC_CHIPS[m.type]
+                      {TEMPLATE_SUGGESTIONS.map(s => (
+                        <button key={s} type="button" onClick={() => updateTemplateName(ti, s)}
+                          className="px-2.5 py-1 text-xs rounded-lg border cursor-pointer hover:border-[#FF6B4A] transition-all"
+                          style={{ backgroundColor: 'var(--subtle)', borderColor: 'var(--border)', color: 'var(--muted)' }}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Quick-add obstacle chips */}
+                  <div className="space-y-2 pt-1">
+                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>Quick add</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {SPARTAN_OBSTACLES.filter(o => o.isDefault).map(obs => {
+                        const added = tmpl.metrics.some(m => m.name === obs.name)
                         return (
-                          <span key={mi} className="text-xs px-2.5 py-0.5 rounded-full" style={{ backgroundColor: chip.bg, color: chip.color }}>
-                            {m.name}
-                          </span>
+                          <button key={obs.name} type="button" onClick={() => addPresetMetric(ti, obs)}
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg border cursor-pointer transition-all"
+                            style={{
+                              backgroundColor: added ? 'rgba(0,191,165,.12)' : 'rgba(255,107,74,.08)',
+                              borderColor: added ? '#00BFA5' : 'rgba(255,107,74,.25)',
+                              color: added ? '#00896E' : '#C44A2A',
+                            }}>
+                            {added && <Check className="w-3 h-3" />}
+                            {obs.name}
+                          </button>
                         )
                       })}
                     </div>
-                  )}
+                    {!(showMoreChips[ti]) ? (
+                      <button type="button"
+                        onClick={() => setShowMoreChips(s => s.map((v, i) => i === ti ? true : v))}
+                        className="text-xs cursor-pointer hover:opacity-70 transition-opacity"
+                        style={{ color: 'var(--muted)' }}>
+                        + More obstacles
+                      </button>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="flex flex-wrap gap-1.5">
+                          {SPARTAN_OBSTACLES.filter(o => !o.isDefault).map(obs => {
+                            const added = tmpl.metrics.some(m => m.name === obs.name)
+                            return (
+                              <button key={obs.name} type="button" onClick={() => addPresetMetric(ti, obs)}
+                                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg border cursor-pointer transition-all"
+                                style={{
+                                  backgroundColor: added ? 'rgba(0,191,165,.12)' : 'var(--subtle)',
+                                  borderColor: added ? '#00BFA5' : 'var(--border)',
+                                  color: added ? '#00896E' : 'var(--muted)',
+                                }}>
+                                {added && <Check className="w-3 h-3" />}
+                                {obs.name}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <button type="button"
+                          onClick={() => setShowMoreChips(s => s.map((v, i) => i === ti ? false : v))}
+                          className="text-xs cursor-pointer hover:opacity-70 transition-opacity"
+                          style={{ color: 'var(--muted)' }}>
+                          Show less
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t pt-2" style={{ borderColor: 'var(--border)' }}>
+                    <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Metrics</p>
+                  </div>
+
                   {tmpl.metrics.map((m, mi) => (
                     <div key={mi} className="flex gap-2">
                       <input className={inputCls} style={inputSty} value={m.name} onChange={e => updateMetric(ti, mi, 'name', e.target.value)} placeholder="Metric name (e.g. Circuit Time)" />
