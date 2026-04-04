@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 
 type Participant = {
   id: string
+  player_id: string
   name: string
   checked_in: boolean
   group_id: string | null

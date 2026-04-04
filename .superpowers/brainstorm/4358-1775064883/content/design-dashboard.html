@@ -1,0 +1,132 @@
+<h2>Dashboard Design</h2>
+<p class="subtitle">Section 1 of 2 — does this look right to you?</p>
+
+<div class="mockup">
+  <div class="mockup-header">spartan.queueave.com/dashboard</div>
+  <div class="mockup-body" style="background:#FFF8F5;padding:24px;font-family:system-ui,sans-serif;min-height:520px">
+
+    <!-- Header row -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div style="font-size:20px;font-weight:800;color:#1A1A1A;font-family:system-ui">Good morning, Coach</div>
+        <div style="font-size:12px;color:#6B6B6B;margin-top:3px">
+          <span style="color:#00BFA5;font-weight:600">2 active</span>
+          &nbsp;·&nbsp;5 events&nbsp;·&nbsp;34 participants
+        </div>
+      </div>
+      <button style="background:#FF6B4A;color:white;font-size:12px;font-weight:700;padding:8px 16px;border-radius:999px;border:none;cursor:pointer">+ New Event</button>
+    </div>
+
+    <!-- Search + Filter -->
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <div style="flex:1;position:relative">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9B9B9B;font-size:12px">🔍</span>
+        <input style="width:100%;box-sizing:border-box;height:36px;border:1px solid #F0E0D6;border-radius:10px;background:white;padding:0 10px 0 28px;font-size:12px;color:#6B6B6B;outline:none" placeholder="Search events..." />
+      </div>
+      <div style="display:flex;gap:3px;background:white;border:1px solid #F0E0D6;border-radius:10px;padding:3px">
+        <span style="background:#FF6B4A;color:white;padding:4px 10px;border-radius:7px;font-size:11px;font-weight:600">All</span>
+        <span style="color:#6B6B6B;padding:4px 10px;font-size:11px">Active</span>
+        <span style="color:#6B6B6B;padding:4px 10px;font-size:11px">Draft</span>
+        <span style="color:#6B6B6B;padding:4px 10px;font-size:11px">Past</span>
+      </div>
+    </div>
+
+    <!-- Active section -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;color:#6B6B6B;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+        <span style="width:7px;height:7px;border-radius:50%;background:#00BFA5;display:inline-block;animation:pulse 2s infinite"></span>
+        Active
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+
+        <!-- Active card 1 -->
+        <div style="background:white;border:1px solid #F0E0D6;border-left:4px solid #FF6B4A;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+          <div style="padding:12px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+              <div style="font-size:13px;font-weight:700;color:#1A1A1A">Spartan Sprint #4</div>
+              <span style="background:#E6FFF9;color:#00896E;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap">open</span>
+            </div>
+            <div style="font-size:11px;color:#6B6B6B;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span>📅 Today</span>
+              <span style="color:#F0E0D6">·</span>
+              <span>📍 Clark, Pampanga</span>
+              <span style="color:#F0E0D6">·</span>
+              <span>👥 12</span>
+            </div>
+          </div>
+          <div style="border-top:1px solid #F0E0D6;padding:8px 12px;text-align:center;font-size:11px;color:#FF6B4A;font-weight:500;cursor:pointer">
+            ↑ Share join link
+          </div>
+        </div>
+
+        <!-- Active card 2 -->
+        <div style="background:white;border:1px solid #F0E0D6;border-left:4px solid #FF6B4A;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+          <div style="padding:12px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+              <div style="font-size:13px;font-weight:700;color:#1A1A1A">Team Qualifier</div>
+              <span style="background:#E6FFF9;color:#00896E;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap">open</span>
+            </div>
+            <div style="font-size:11px;color:#6B6B6B;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span>📅 Tomorrow</span>
+              <span style="color:#F0E0D6">·</span>
+              <span>👥 8</span>
+            </div>
+          </div>
+          <div style="border-top:1px solid #F0E0D6;padding:8px 12px;text-align:center;font-size:11px;color:#FF6B4A;font-weight:500;cursor:pointer">
+            ↑ Share join link
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Past section -->
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#6B6B6B;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Past</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+
+        <div style="background:rgba(255,255,255,.6);border:1px solid #F0E0D6;border-radius:12px;padding:12px;opacity:.85">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:12px;font-weight:500;color:#6B6B6B">Sprint #3</div>
+            <span style="background:#F5F0ED;color:#6B6B6B;font-size:10px;padding:2px 7px;border-radius:99px">completed</span>
+          </div>
+          <div style="font-size:11px;color:#9B9B9B">Mar 15 · 10 participants</div>
+        </div>
+
+        <div style="background:rgba(255,255,255,.6);border:1px solid #F0E0D6;border-radius:12px;padding:12px;opacity:.85">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:12px;font-weight:500;color:#6B6B6B">Qualifier Prep</div>
+            <span style="background:#F5F0ED;color:#6B6B6B;font-size:10px;padding:2px 7px;border-radius:99px">completed</span>
+          </div>
+          <div style="font-size:11px;color:#9B9B9B">Mar 8 · 6 participants</div>
+        </div>
+
+        <div style="background:rgba(255,255,255,.6);border:1px solid #F0E0D6;border-radius:12px;padding:12px;opacity:.6">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:12px;font-weight:500;color:#6B6B6B">Pre-season Trial</div>
+            <span style="background:#F5EEE0;color:#9B7800;font-size:10px;padding:2px 7px;border-radius:99px">draft</span>
+          </div>
+          <div style="font-size:11px;color:#9B9B9B">Feb 20 · no date set</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>What's included</h3>
+  <ul style="color:#555;font-size:14px;line-height:1.8;padding-left:20px">
+    <li><strong>Greeting</strong> — "Good morning/afternoon/evening, [coach name]" from <code>organizers.name</code></li>
+    <li><strong>Stats row</strong> — active count (coral), total events, total participants</li>
+    <li><strong>Search</strong> — shown once coach has 5+ events</li>
+    <li><strong>Filter tabs</strong> — All / Active / Draft / Past (client-side filtering, no server round-trip)</li>
+    <li><strong>Active section</strong> — pulsing teal dot, 2-col grid (3-col on desktop), coral left-border accent cards, share link button</li>
+    <li><strong>Past section</strong> — muted cards for completed + draft events</li>
+    <li><strong>Share join link</strong> — copies or uses Web Share API (same pattern as badminton)</li>
+    <li><strong>Empty state</strong> — keep existing Spartan empty state, just restyle the button</li>
+  </ul>
+</div>
+
+<p class="subtitle" style="margin-top:16px">Does this look right? Any changes before we move to the session form design?</p>

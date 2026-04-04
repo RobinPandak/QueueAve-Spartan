@@ -8,6 +8,7 @@ type EventData = { name: string; date: string | null; start_time: string | null;
 
 type Props = {
   participantId: string
+  playerId: string
   name: string
   status: string | null
   event: EventData
@@ -26,7 +27,7 @@ function formatTime(t: string | null) {
   return new Date('1970-01-01T' + t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
-export function ParticipantProfile({ participantId, name, status, event, qrUrl, avatarUrl: initialAvatarUrl }: Props) {
+export function ParticipantProfile({ participantId: _participantId, playerId, name, status, event, qrUrl, avatarUrl: initialAvatarUrl }: Props) {
   const [saving, setSaving] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl)
   const [avatarLoading, setAvatarLoading] = useState(false)
@@ -43,7 +44,7 @@ export function ParticipantProfile({ participantId, name, status, event, qrUrl, 
     try {
       const fd = new FormData()
       fd.append('file', file)
-      const result = await uploadAvatar(participantId, fd)
+      const result = await uploadAvatar(playerId, fd)
       if ('error' in result) throw new Error(result.error)
       setAvatarUrl(result.url)
     } catch (err) {

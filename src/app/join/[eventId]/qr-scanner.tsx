@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Camera, Upload, X } from 'lucide-react'
 import jsQR from 'jsqr'
+import { enrollPlayerById } from '@/app/actions/participants'
 
-type Props = { onBack: () => void }
+type Props = { eventId: string; onBack: () => void }
 
-export function QrScanner({ onBack }: Props) {
+export function QrScanner({ eventId, onBack }: Props) {
   const router = useRouter()
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -27,14 +28,31 @@ export function QrScanner({ onBack }: Props) {
 
   useEffect(() => () => stopCamera(), [])
 
-  function handleResult(url: string) {
+  async function handleResult(url: string) {
     stopCamera()
-    // Validate it's a spartan profile URL
-    if (url.includes('/p/') && url.match(/\/p\/[0-9a-f-]{36}/i)) {
-      const path = new URL(url).pathname
-      router.push(path)
-    } else {
+    try {
+      // New global player QR
+      const playerMatch = url.match(/\/player\/([0-9a-f-]{36})/i)
+      if (playerMatch) {
+        const result = await enrollPlayerById(playerMatch[1], eventId)
+        if ('error' in result) {
+          setError(result.error)
+          setMode('choose')
+        } else {
+          router.push(`/player/${playerMatch[1]}`)
+        }
+        return
+      }
+      // Legacy event-specific QR
+      const legacyMatch = url.match(/\/p\/([0-9a-f-]{36})/i)
+      if (legacyMatch) {
+        router.push(`/p/${legacyMatch[1]}`)
+        return
+      }
       setError('This QR code is not a valid Spartan athlete profile.')
+      setMode('choose')
+    } catch {
+      setError('Something went wrong. Please try again.')
       setMode('choose')
     }
   }

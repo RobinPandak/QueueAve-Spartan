@@ -121,7 +121,7 @@ export function JoinEntry({ event, groups }: Props) {
       if ('error' in result) {
         setEmailError(result.error)
       } else {
-        router.push(`/p/${result.id}`)
+        router.push(`/player/${result.playerId}`)
       }
     } catch {
       setEmailError('Something went wrong. Please try again.')
@@ -209,7 +209,7 @@ export function JoinEntry({ event, groups }: Props) {
 
             {/* ── QR view ── */}
             {view === 'qr' && (
-              <QrScanner onBack={() => setView('entry')} />
+              <QrScanner eventId={event.id} onBack={() => setView('entry')} />
             )}
 
             {/* ── Email lookup view ── */}

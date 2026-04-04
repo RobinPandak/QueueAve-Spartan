@@ -17,11 +17,15 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
   const { data: { user } } = await supabase.auth.getUser()
   const isOwner = user?.id === event.organizer_id
 
-  const { data: participants } = await supabase
+  const { data: rawParticipants } = await supabase
     .from('spartan_participants')
-    .select('*')
+    .select('id, checked_in, group_id, status, spartan_players(name)')
     .eq('event_id', id)
-    .order('name')
+
+  const participants = (rawParticipants ?? []).map(p => ({
+    id: p.id, checked_in: p.checked_in, group_id: p.group_id, status: p.status,
+    name: (p.spartan_players as any)?.name ?? '',
+  })).sort((a, b) => a.name.localeCompare(b.name))
 
   const { data: groups } = await supabase
     .from('spartan_groups')

@@ -1,0 +1,132 @@
+<h2>Session Creation Form Design</h2>
+<p class="subtitle">Section 2 of 2 — the form coaches use each training day</p>
+
+<div class="split">
+
+  <div class="mockup">
+    <div class="mockup-header">Current</div>
+    <div class="mockup-body" style="background:#FFF8F5;padding:24px;font-family:system-ui,sans-serif">
+      <div style="font-size:16px;font-weight:700;color:#1A1A1A;margin-bottom:16px">New Session</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:12px;color:#6B6B6B;display:block;margin-bottom:4px">Template</label>
+          <select style="width:100%;border:1px solid #F0E0D6;border-radius:10px;padding:8px 12px;font-size:13px;background:white;color:#6B6B6B">
+            <option>Obstacle Circuit</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#6B6B6B;display:block;margin-bottom:4px">Date</label>
+          <input type="text" value="2026-04-02" style="width:100%;box-sizing:border-box;border:1px solid #F0E0D6;border-radius:10px;padding:8px 12px;font-size:13px;background:white;color:#1A1A1A" />
+        </div>
+        <div>
+          <label style="font-size:12px;color:#6B6B6B;display:block;margin-bottom:4px">Group <span style="font-weight:400">(optional)</span></label>
+          <select style="width:100%;border:1px solid #F0E0D6;border-radius:10px;padding:8px 12px;font-size:13px;background:white;color:#6B6B6B">
+            <option>All groups</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#6B6B6B;display:block;margin-bottom:4px">Notes <span style="font-weight:400">(optional)</span></label>
+          <textarea rows="2" style="width:100%;box-sizing:border-box;border:1px solid #F0E0D6;border-radius:10px;padding:8px 12px;font-size:13px;background:white;color:#6B6B6B;resize:none"></textarea>
+        </div>
+        <button style="background:#FF6B4A;color:white;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%">Create Session</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">New — badminton-styled</div>
+    <div class="mockup-body" style="background:#FFF8F5;padding:24px;font-family:system-ui,sans-serif">
+
+      <!-- Back link -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6B6B6B;margin-bottom:20px;cursor:pointer">
+        ← Spartan Sprint #4
+      </div>
+
+      <!-- Card -->
+      <div style="background:white;border:1px solid #F0E0D6;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+
+        <div style="margin-bottom:20px">
+          <div style="font-size:18px;font-weight:800;color:#1A1A1A;font-family:system-ui">New Session</div>
+          <div style="font-size:12px;color:#6B6B6B;margin-top:3px">Record a training session for this event</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- Template -->
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">Template</label>
+            <div style="position:relative">
+              <select style="width:100%;box-sizing:border-box;border:1px solid #F0E0D6;border-radius:10px;padding:10px 12px;font-size:13px;background:white;color:#1A1A1A;appearance:none;cursor:pointer;outline:none">
+                <option>Obstacle Circuit</option>
+                <option>Sprint Intervals</option>
+              </select>
+              <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#6B6B6B;pointer-events:none">▾</span>
+            </div>
+            <!-- Template hint -->
+            <div style="margin-top:6px;padding:8px 10px;background:#FFF8F5;border-radius:8px;border:1px solid #F0E0D6;font-size:11px;color:#6B6B6B">
+              📋 3 metrics: <span style="color:#FF6B4A">Time · Count · Pass/Fail</span>
+            </div>
+          </div>
+
+          <!-- Date -->
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">Date</label>
+            <input type="text" value="April 2, 2026" style="width:100%;box-sizing:border-box;border:1px solid #FF6B4A;border-radius:10px;padding:10px 12px;font-size:13px;background:white;color:#1A1A1A;outline:none;box-shadow:0 0 0 3px rgba(255,107,74,.1)" />
+          </div>
+
+          <!-- Group -->
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">
+              Group <span style="font-size:10px;font-weight:500;color:#9B9B9B;text-transform:none;letter-spacing:0">optional</span>
+            </label>
+            <div style="position:relative">
+              <select style="width:100%;box-sizing:border-box;border:1px solid #F0E0D6;border-radius:10px;padding:10px 12px;font-size:13px;background:white;color:#6B6B6B;appearance:none;cursor:pointer">
+                <option>All groups</option>
+                <option>Wave A</option>
+                <option>Wave B</option>
+              </select>
+              <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#6B6B6B;pointer-events:none">▾</span>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">
+              Notes <span style="font-size:10px;font-weight:500;color:#9B9B9B;text-transform:none;letter-spacing:0">optional</span>
+            </label>
+            <textarea rows="2" placeholder="Windy conditions, mud on course..." style="width:100%;box-sizing:border-box;border:1px solid #F0E0D6;border-radius:10px;padding:10px 12px;font-size:13px;background:white;color:#6B6B6B;resize:none;outline:none"></textarea>
+          </div>
+
+          <!-- Submit button -->
+          <button style="background:#FF6B4A;color:white;border:none;border-radius:999px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(255,107,74,.25)">
+            Create Session →
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>What changes</h3>
+  <ul style="color:#555;font-size:14px;line-height:1.9;padding-left:20px">
+    <li><strong>Card wrapper</strong> — white card with rounded corners + subtle shadow, floated on the warm background</li>
+    <li><strong>Labels</strong> — uppercase, bold, small tracking (like badminton) instead of plain small text</li>
+    <li><strong>Template hint</strong> — shows the metrics in the selected template (updates live on change)</li>
+    <li><strong>Focus ring</strong> — coral focus ring + border on active field</li>
+    <li><strong>Submit button</strong> — pill shape, coral shadow glow, loading spinner state</li>
+    <li><strong>Back link</strong> — "← [Event name]" at top for clear navigation context</li>
+    <li><strong>Convert to client component</strong> — needed for loading state + template hint reactivity</li>
+  </ul>
+  <h3 style="margin-top:16px">What stays the same</h3>
+  <ul style="color:#555;font-size:14px;line-height:1.9;padding-left:20px">
+    <li>All 4 fields: template, date, group, notes — same fields, same server action</li>
+    <li>Date defaults to today</li>
+    <li>Group defaults to "All groups"</li>
+    <li>Redirects to the session results grid after creation</li>
+  </ul>
+</div>
+
+<p class="subtitle" style="margin-top:16px">Does this look right? Approve to finalize the full design.</p>

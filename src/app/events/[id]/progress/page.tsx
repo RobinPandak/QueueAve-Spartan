@@ -10,7 +10,8 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
   const { data: event } = await supabase.from('spartan_events').select('*').eq('id', id).single()
   if (!event) notFound()
 
-  const { data: participants } = await supabase.from('spartan_participants').select('*').eq('event_id', id).order('name')
+  const { data: rawParticipants } = await supabase.from('spartan_participants').select('id, spartan_players(name)').eq('event_id', id)
+  const participants = (rawParticipants ?? []).map(p => ({ id: p.id, name: (p.spartan_players as any)?.name ?? '' })).sort((a, b) => a.name.localeCompare(b.name))
   const { data: sessions } = await supabase.from('spartan_sessions').select('*').eq('event_id', id).order('session_date')
   const { data: templates } = await supabase.from('spartan_session_templates').select('*, spartan_metrics(*)').eq('event_id', id)
   const { data: results } = await supabase.from('spartan_results').select('*, spartan_sessions(session_date)').in('session_id', sessions?.map(s => s.id) ?? [])

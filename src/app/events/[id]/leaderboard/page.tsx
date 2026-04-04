@@ -23,7 +23,7 @@ export default async function LeaderboardPage({ params }: { params: Promise<{ id
   }
 
   const { data: metrics } = await supabase.from('spartan_metrics').select('*').eq('template_id', latestSession.template_id).order('sort_order')
-  const { data: results } = await supabase.from('spartan_results').select('*, spartan_participants(name)').eq('session_id', latestSession.id)
+  const { data: results } = await supabase.from('spartan_results').select('*, spartan_participants(spartan_players(name))').eq('session_id', latestSession.id)
 
   const tmpl = latestSession.spartan_session_templates as any
   const group = latestSession.spartan_groups as any
@@ -45,7 +45,7 @@ export default async function LeaderboardPage({ params }: { params: Promise<{ id
         const metricResults = (results ?? [])
           .filter(r => r.metric_id === metric.id)
           .map(r => ({
-            name: (r.spartan_participants as any)?.name ?? 'Unknown',
+            name: (r.spartan_participants as any)?.spartan_players?.name ?? 'Unknown',
             raw: metric.type === 'time'
               ? parseTimeToSeconds(r.time_value)
               : metric.type === 'count' ? r.count_value

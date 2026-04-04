@@ -1,0 +1,148 @@
+<h2>Event Creation Wizard Design</h2>
+<p class="subtitle">Section 2 of 2 — badminton's wizard style applied to Spartan's event creation</p>
+
+<div class="mockup">
+  <div class="mockup-header">spartan.queueave.com/events/new — Step 1 of 4</div>
+  <div class="mockup-body" style="background:#FFF8F5;padding:24px;font-family:system-ui,sans-serif">
+
+    <!-- Progress bars -->
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <div style="flex:1;height:4px;border-radius:99px;background:#FF6B4A"></div>
+      <div style="flex:1;height:4px;border-radius:99px;background:rgba(255,107,74,.2)"></div>
+      <div style="flex:1;height:4px;border-radius:99px;background:#F0E0D6"></div>
+      <div style="flex:1;height:4px;border-radius:99px;background:#F0E0D6"></div>
+    </div>
+    <div style="font-size:11px;color:#9B9B9B;margin-bottom:20px">Step 1 of 4, The basics</div>
+
+    <!-- Step 1 content -->
+    <div style="margin-bottom:24px">
+      <div style="font-size:22px;font-weight:800;color:#1A1A1A;margin-bottom:6px">What's your event called?</div>
+      <div style="font-size:13px;color:#6B6B6B">Pick a name your athletes will recognise.</div>
+    </div>
+
+    <input type="text" value="Spartan Sprint #5" style="width:100%;box-sizing:border-box;border:1px solid #FF6B4A;border-radius:12px;padding:14px 16px;font-size:16px;font-weight:600;color:#1A1A1A;background:white;outline:none;box-shadow:0 0 0 3px rgba(255,107,74,.1)" />
+    <div style="margin-top:8px;font-size:12px;color:#00BFA5;display:flex;align-items:center;gap:5px">✓ Great name!</div>
+
+    <!-- Suggestions -->
+    <div style="margin-top:16px">
+      <div style="font-size:11px;color:#9B9B9B;font-weight:600;margin-bottom:8px">Need ideas?</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <span style="background:white;border:1px solid #F0E0D6;border-radius:10px;padding:6px 12px;font-size:12px;color:#6B6B6B;cursor:pointer">Spartan Sprint</span>
+        <span style="background:white;border:1px solid #F0E0D6;border-radius:10px;padding:6px 12px;font-size:12px;color:#6B6B6B;cursor:pointer">Obstacle Trial</span>
+        <span style="background:white;border:1px solid #F0E0D6;border-radius:10px;padding:6px 12px;font-size:12px;color:#6B6B6B;cursor:pointer">Team Qualifier</span>
+        <span style="background:white;border:1px solid #F0E0D6;border-radius:10px;padding:6px 12px;font-size:12px;color:#6B6B6B;cursor:pointer">Pre-season Camp</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:28px">
+      <a style="font-size:13px;color:#6B6B6B;display:flex;align-items:center;gap:5px;cursor:pointer">← Back</a>
+      <button style="background:#FF6B4A;color:white;border:none;border-radius:12px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(255,107,74,.25)">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<div class="cards" style="margin-top:20px">
+
+  <div class="card" data-choice="step2" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#FFF8F5;padding:16px;font-family:system-ui,sans-serif">
+      <div style="display:flex;gap:4px;margin-bottom:8px">
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:rgba(255,107,74,.2)"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:#F0E0D6"></div>
+      </div>
+      <div style="font-size:9px;color:#9B9B9B;margin-bottom:10px">Step 2 of 4, When &amp; where</div>
+      <div style="font-size:14px;font-weight:800;color:#1A1A1A;margin-bottom:10px">When is it happening?</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div>
+          <div style="font-size:9px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Date</div>
+          <div style="border:1px solid #F0E0D6;border-radius:8px;padding:7px 10px;font-size:11px;color:#1A1A1A;background:white">April 10, 2026</div>
+        </div>
+        <div>
+          <div style="font-size:9px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Venue <span style="font-weight:400;text-transform:none;color:#9B9B9B">optional</span></div>
+          <div style="border:1px solid #F0E0D6;border-radius:8px;padding:7px 10px;font-size:11px;color:#6B6B6B;background:white">Clark, Pampanga</div>
+        </div>
+        <div>
+          <div style="font-size:9px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Description <span style="font-weight:400;text-transform:none;color:#9B9B9B">optional</span></div>
+          <div style="border:1px solid #F0E0D6;border-radius:8px;padding:7px 10px;font-size:11px;color:#6B6B6B;background:white;height:28px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>Step 2 — When &amp; Where</h3><p>Date (required) · Venue · Description</p></div>
+  </div>
+
+  <div class="card" data-choice="step3" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#FFF8F5;padding:16px;font-family:system-ui,sans-serif">
+      <div style="display:flex;gap:4px;margin-bottom:8px">
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:rgba(255,107,74,.2)"></div>
+      </div>
+      <div style="font-size:9px;color:#9B9B9B;margin-bottom:10px">Step 3 of 4, Training groups</div>
+      <div style="font-size:14px;font-weight:800;color:#1A1A1A;margin-bottom:10px">Who's training?</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:6px;background:white;border:1px solid #F0E0D6;border-radius:8px;padding:7px 10px">
+          <div style="font-size:11px;color:#1A1A1A;flex:1">Wave A</div>
+          <div style="font-size:10px;color:#9B9B9B">08:00</div>
+          <div style="font-size:11px;color:#9B9B9B">×</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;background:white;border:1px solid #F0E0D6;border-radius:8px;padding:7px 10px">
+          <div style="font-size:11px;color:#1A1A1A;flex:1">Wave B</div>
+          <div style="font-size:10px;color:#9B9B9B">10:00</div>
+          <div style="font-size:11px;color:#9B9B9B">×</div>
+        </div>
+        <div style="font-size:11px;color:#FF6B4A;cursor:pointer;padding:4px 0">+ Add group</div>
+      </div>
+    </div>
+    <div class="card-body"><h3>Step 3 — Training Groups</h3><p>Group name + start time (optional) · dynamic add/remove</p></div>
+  </div>
+
+  <div class="card" data-choice="step4" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#FFF8F5;padding:16px;font-family:system-ui,sans-serif">
+      <div style="display:flex;gap:4px;margin-bottom:8px">
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+        <div style="flex:1;height:3px;border-radius:99px;background:#FF6B4A"></div>
+      </div>
+      <div style="font-size:9px;color:#9B9B9B;margin-bottom:10px">Step 4 of 4, Templates &amp; review</div>
+      <div style="font-size:14px;font-weight:800;color:#1A1A1A;margin-bottom:10px">What are you measuring?</div>
+      <div style="background:white;border:1px solid #F0E0D6;border-radius:8px;padding:8px;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:600;color:#1A1A1A;margin-bottom:5px">Obstacle Circuit</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <span style="background:#FFF0EB;color:#FF6B4A;font-size:9px;padding:2px 7px;border-radius:99px">Completion Time</span>
+          <span style="background:#FFF0EB;color:#FF6B4A;font-size:9px;padding:2px 7px;border-radius:99px">Obstacles Cleared</span>
+          <span style="background:#FFF0EB;color:#FF6B4A;font-size:9px;padding:2px 7px;border-radius:99px">Pass/Fail</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#FF6B4A;cursor:pointer">+ Add template</div>
+      <div style="margin-top:10px;background:#FF6B4A;color:white;border-radius:10px;padding:9px;text-align:center;font-size:12px;font-weight:700">✦ Create Event</div>
+    </div>
+    <div class="card-body"><h3>Step 4 — Templates &amp; Review</h3><p>Template name · metrics (time/count/pass_fail) · Create Event CTA</p></div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>What changes vs. current wizard</h3>
+  <ul style="color:#555;font-size:14px;line-height:1.9;padding-left:20px">
+    <li><strong>4 steps instead of 3</strong> — split name into its own focused Step 1 (like badminton's basics step)</li>
+    <li><strong>Progress bars</strong> — thin segment bars at top (one per step), coral fill for completed</li>
+    <li><strong>Step label</strong> — "Step X of 4, [step name]" below bars</li>
+    <li><strong>Large heading per step</strong> — conversational question format ("What's your event called?")</li>
+    <li><strong>Name suggestions chips</strong> — clickable chips on Step 1</li>
+    <li><strong>Slide animation</strong> — steps slide in/out (SlideIn component, same as badminton)</li>
+    <li><strong>Uppercase bold labels</strong> with letter-spacing on all fields</li>
+    <li><strong>Coral focus ring</strong> + coral Continue button (replacing step circle indicators)</li>
+  </ul>
+  <h3 style="margin-top:12px">What stays the same</h3>
+  <ul style="color:#555;font-size:14px;line-height:1.9;padding-left:20px">
+    <li>All existing fields — name, date, venue, description, groups, templates, metrics</li>
+    <li>Dynamic add/remove for groups and templates</li>
+    <li>Same <code>createEvent</code> server action, same redirect on success</li>
+  </ul>
+</div>
+
+<p class="subtitle" style="margin-top:16px">Does this look right? Approve to write the spec.</p>

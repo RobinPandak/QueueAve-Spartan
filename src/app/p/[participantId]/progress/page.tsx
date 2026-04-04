@@ -7,7 +7,7 @@ import { ProgressCharts } from '@/components/progress-charts'
 export default async function PersonalProgressPage({ params }: { params: Promise<{ participantId: string }> }) {
   const { participantId } = await params
   const supabase = await createClient()
-  const { data: participant } = await supabase.from('spartan_participants').select('*, spartan_events(*)').eq('id', participantId).single()
+  const { data: participant } = await supabase.from('spartan_participants').select('id, spartan_players(name), spartan_events(*)').eq('id', participantId).single()
   if (!participant) notFound()
 
   const event = participant.spartan_events as any

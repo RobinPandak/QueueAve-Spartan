@@ -7,8 +7,9 @@ import { ProgressCharts } from '@/components/progress-charts'
 export default async function ParticipantProgressPage({ params }: { params: Promise<{ id: string; participantId: string }> }) {
   const { id, participantId } = await params
   const supabase = await createClient()
-  const { data: participant } = await supabase.from('spartan_participants').select('*').eq('id', participantId).single()
+  const { data: participant } = await supabase.from('spartan_participants').select('id, spartan_players(name)').eq('id', participantId).single()
   if (!participant) notFound()
+  const participantName = (participant.spartan_players as any)?.name ?? ''
 
   const { data: templates } = await supabase.from('spartan_session_templates').select('*, spartan_metrics(*)').eq('event_id', id)
   const { data: results } = await supabase
@@ -39,7 +40,7 @@ export default async function ParticipantProgressPage({ params }: { params: Prom
   return (
     <div>
       <Link href={`/events/${id}/progress`} className="text-sm cursor-pointer" style={{ color: 'var(--muted)' }}>← Progress Dashboard</Link>
-      <h2 className="text-2xl font-extrabold mt-2 mb-8">{participant.name}</h2>
+      <h2 className="text-2xl font-extrabold mt-2 mb-8">{participantName}</h2>
       <ProgressCharts chartData={chartData} />
     </div>
   )
