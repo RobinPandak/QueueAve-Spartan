@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Camera, Download, Calendar, MapPin, Check, Smartphone } from 'lucide-react'
+import { Camera, Download, Calendar, MapPin, Clock, Check, Smartphone } from 'lucide-react'
 import { uploadAvatar } from '@/app/actions/participants'
 import Link from 'next/link'
 
@@ -9,7 +9,7 @@ type Enrollment = {
   participantId: string
   status: string | null
   checkedIn: boolean
-  event: { id: string; name: string; date: string | null; status: string; venue: string | null } | null
+  event: { id: string; name: string; date: string | null; start_time: string | null; status: string; venue: string | null } | null
 }
 
 type Props = {
@@ -136,6 +136,12 @@ export function PlayerProfile({ playerId, name, avatarUrl: initialAvatarUrl, enr
                   <div className="flex items-center gap-2 text-sm" style={{ color: '#6B6B6B' }}>
                     <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
                     {formatDate(currentEvent.date)}
+                  </div>
+                )}
+                {currentEvent.start_time && (
+                  <div className="flex items-center gap-2 text-sm" style={{ color: '#6B6B6B' }}>
+                    <Clock className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
+                    {new Date('1970-01-01T' + currentEvent.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                   </div>
                 )}
                 {currentEvent.venue && (

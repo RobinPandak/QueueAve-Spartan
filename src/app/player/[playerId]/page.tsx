@@ -17,7 +17,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ playerI
 
   const { data: enrollments } = await supabase
     .from('spartan_participants')
-    .select('id, status, checked_in, spartan_events(id, name, date, status, venue)')
+    .select('id, status, checked_in, spartan_events(id, name, date, start_time, status, venue)')
     .eq('player_id', playerId)
     .order('registered_at', { ascending: false })
 
@@ -34,7 +34,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ playerI
       avatarUrl={player.avatar_url ?? null}
       enrollments={(enrollments ?? []).map(e => {
         const event = e.spartan_events as any
-        return { participantId: e.id, status: e.status, checkedIn: e.checked_in, event }
+        return { participantId: e.id, status: e.status, checkedIn: e.checked_in, event: event ? { ...event, start_time: event.start_time ?? null } : null }
       })}
       qrUrl={qrUrl}
       playerUrl={playerUrl}
