@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Camera, Download, Calendar, MapPin, Check, Clock, Smartphone } from 'lucide-react'
+import { Camera, Download, Calendar, MapPin, Check, Smartphone } from 'lucide-react'
 import { uploadAvatar } from '@/app/actions/participants'
 import Link from 'next/link'
 
@@ -175,55 +175,50 @@ export function PlayerProfile({ playerId, name, avatarUrl: initialAvatarUrl, enr
           </div>
         </div>
 
-        {/* Events list */}
-        {enrollments.length > 0 && (
-          <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', boxShadow: '0 4px 32px rgba(0,0,0,.08)' }}>
-            <div className="h-1.5 w-full" style={{ backgroundColor: '#FF6B4A' }} />
-            <div className="p-6 space-y-3">
-              <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: '#A0A0A0' }}>My Events</h2>
-              {enrollments.map(e => {
-                if (!e.event) return null
-                const badge = EVENT_STATUS[e.event.status] ?? EVENT_STATUS.draft
-                return (
-                  <Link key={e.participantId} href={`/p/${e.participantId}`}
-                    className="flex items-center gap-3 p-3.5 rounded-2xl transition-all hover:opacity-80"
-                    style={{ backgroundColor: '#F5F0EB' }}>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate" style={{ color: '#1A1A1A' }}>{e.event.name}</p>
-                      <div className="flex items-center gap-3 mt-0.5">
-                        {e.event.date && (
-                          <span className="flex items-center gap-1 text-xs" style={{ color: '#6B6B6B' }}>
-                            <Calendar className="w-3 h-3" /> {formatDate(e.event.date)}
-                          </span>
-                        )}
-                        {e.event.venue && (
-                          <span className="flex items-center gap-1 text-xs truncate" style={{ color: '#6B6B6B' }}>
-                            <MapPin className="w-3 h-3" /> {e.event.venue}
-                          </span>
-                        )}
-                      </div>
+        {/* Most recent event */}
+        {enrollments[0]?.event && (() => {
+          const e = enrollments[0]
+          const badge = EVENT_STATUS[e.event!.status] ?? EVENT_STATUS.draft
+          return (
+            <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', boxShadow: '0 4px 32px rgba(0,0,0,.08)' }}>
+              <div className="h-1.5 w-full" style={{ backgroundColor: '#FF6B4A' }} />
+              <div className="p-6 space-y-4">
+                <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: '#A0A0A0' }}>Current Event</h2>
+                <div className="rounded-2xl p-4 space-y-2" style={{ backgroundColor: '#F5F0EB' }}>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-base font-black leading-snug" style={{ color: '#1A1A1A' }}>{e.event!.name}</p>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5"
+                      style={{ backgroundColor: badge.bg, color: badge.color }}>
+                      {badge.label}
+                    </span>
+                  </div>
+                  {e.event!.date && (
+                    <div className="flex items-center gap-2 text-sm" style={{ color: '#6B6B6B' }}>
+                      <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
+                      {formatDate(e.event!.date)}
                     </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: badge.bg, color: badge.color }}>
-                        {badge.label}
-                      </span>
-                      {e.checkedIn && (
-                        <span className="flex items-center gap-0.5 text-xs" style={{ color: '#00896E' }}>
-                          <Check className="w-3 h-3" /> Checked in
-                        </span>
-                      )}
-                      {!e.checkedIn && e.event.status === 'in_progress' && (
-                        <span className="flex items-center gap-0.5 text-xs" style={{ color: '#9B7800' }}>
-                          <Clock className="w-3 h-3" /> Pending
-                        </span>
-                      )}
+                  )}
+                  {e.event!.venue && (
+                    <div className="flex items-center gap-2 text-sm" style={{ color: '#6B6B6B' }}>
+                      <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6B4A' }} />
+                      {e.event!.venue}
                     </div>
-                  </Link>
-                )
-              })}
+                  )}
+                  {e.checkedIn && (
+                    <div className="flex items-center gap-1.5 text-sm font-medium" style={{ color: '#00896E' }}>
+                      <Check className="w-4 h-4" /> Checked in
+                    </div>
+                  )}
+                </div>
+                <Link href={`/p/${e.participantId}`}
+                  className="w-full flex items-center justify-center py-3 rounded-full text-sm font-semibold transition-all hover:opacity-80"
+                  style={{ backgroundColor: '#FF6B4A', color: '#FFFFFF' }}>
+                  View my profile
+                </Link>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
 
         <p className="text-center text-xs" style={{ color: '#A0A0A0' }}>
           Powered by <span className="font-semibold" style={{ color: '#FF6B4A' }}>QueueAve</span>
