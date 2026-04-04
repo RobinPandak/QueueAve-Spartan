@@ -148,10 +148,15 @@ export function EventWizard() {
       : tmpl))
 
   async function handleSubmit() {
-    if (!templates.some(t => t.name.trim())) {
-      setErrors({ templates: 'Add at least one template name' })
-      return
-    }
+    const hasAnyNamed = templates.some(t => t.name.trim())
+    const newErrors: Record<string, string> = {}
+    templates.forEach((t, i) => {
+      if (!t.name.trim() && t.metrics.some(m => m.name.trim())) {
+        newErrors[`templateName_${i}`] = 'Give this template a name'
+      }
+    })
+    if (!hasAnyNamed) newErrors.templates = 'Add at least one template name'
+    if (Object.keys(newErrors).length) { setErrors(newErrors); return }
     setSaving(true)
     await createEvent({
       name, date, start_time: startTime || undefined, venue, description,
@@ -453,16 +458,21 @@ export function EventWizard() {
             <div className="space-y-5">
               {templates.map((tmpl, ti) => (
                 <div key={ti} className="p-5 rounded-2xl border space-y-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-                  <div className="flex items-center gap-2">
-                    <input
-                      className={inputCls}
-                      style={inputSty}
-                      value={tmpl.name}
-                      onChange={e => updateTemplateName(ti, e.target.value)}
-                      placeholder="Template name (e.g. Full Session)"
-                    />
-                    {templates.length > 1 && (
-                      <button onClick={() => removeTemplate(ti)} className="px-2 text-sm cursor-pointer hover:opacity-60" style={{ color: 'var(--muted)' }}>✕</button>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <input
+                        className={inputCls}
+                        style={{ ...inputSty, borderColor: errors[`templateName_${ti}`] ? '#E5484D' : 'var(--border)' }}
+                        value={tmpl.name}
+                        onChange={e => { updateTemplateName(ti, e.target.value); setErrors(prev => { const n = { ...prev }; delete n[`templateName_${ti}`]; delete n.templates; return n }) }}
+                        placeholder="Template name (e.g. Full Session)"
+                      />
+                      {templates.length > 1 && (
+                        <button onClick={() => removeTemplate(ti)} className="px-2 text-sm cursor-pointer hover:opacity-60" style={{ color: 'var(--muted)' }}>✕</button>
+                      )}
+                    </div>
+                    {errors[`templateName_${ti}`] && (
+                      <p className="text-xs" style={{ color: '#E5484D' }}>{errors[`templateName_${ti}`]}</p>
                     )}
                   </div>
 
