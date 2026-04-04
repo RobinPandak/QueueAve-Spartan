@@ -33,7 +33,7 @@ export default async function DashboardPage() {
     name: e.name,
     date: e.date,
     venue: e.venue,
-    status: e.status as 'draft' | 'open' | 'completed',
+    status: e.status as 'draft' | 'open' | 'in_progress' | 'completed',
     participant_count: participantCounts[e.id] ?? 0,
   }))
 

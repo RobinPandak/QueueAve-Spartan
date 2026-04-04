@@ -9,7 +9,7 @@ export type EventCard = {
   name: string
   date: string | null
   venue: string | null
-  status: 'draft' | 'open' | 'completed'
+  status: 'draft' | 'open' | 'in_progress' | 'completed'
   participant_count: number
 }
 
@@ -47,7 +47,7 @@ export function EventsList({ events, coachName }: { events: EventCard[]; coachNa
   const firstName = coachName?.split(' ')[0] ?? ''
   const title = firstName ? `${greeting}, ${firstName}` : 'My Events'
 
-  const activeCount = events.filter(e => e.status === 'open').length
+  const activeCount = events.filter(e => e.status === 'open' || e.status === 'in_progress').length
   const totalParticipants = events.reduce((sum, e) => sum + e.participant_count, 0)
 
   const filtered = useMemo(() => {
@@ -56,14 +56,14 @@ export function EventsList({ events, coachName }: { events: EventCard[]; coachNa
       const q = search.toLowerCase()
       result = result.filter(e => e.name.toLowerCase().includes(q))
     }
-    if (filter === 'active') result = result.filter(e => e.status === 'open')
+    if (filter === 'active') result = result.filter(e => e.status === 'open' || e.status === 'in_progress')
     else if (filter === 'draft') result = result.filter(e => e.status === 'draft')
     else if (filter === 'past') result = result.filter(e => e.status === 'completed')
     return result
   }, [events, search, filter])
 
-  const activeEvents = filtered.filter(e => e.status === 'open')
-  const pastEvents = filtered.filter(e => e.status !== 'open')
+  const activeEvents = filtered.filter(e => e.status === 'open' || e.status === 'in_progress')
+  const pastEvents = filtered.filter(e => e.status !== 'open' && e.status !== 'in_progress')
   const showSearch = events.length >= 5
 
   return (
@@ -183,8 +183,11 @@ function ActiveCard({ event: e, delay }: { event: EventCard; delay: number }) {
             <h3 className="text-base font-semibold truncate mr-2 group-hover:text-[#FF6B4A] transition-colors" style={{ color: 'var(--fg)' }}>
               {e.name}
             </h3>
-            <span className="flex-shrink-0 text-xs font-medium px-2.5 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' }}>
-              open
+            <span className="flex-shrink-0 text-xs font-medium px-2.5 py-0.5 rounded-full"
+              style={e.status === 'in_progress'
+                ? { backgroundColor: 'rgba(255,107,74,.12)', color: '#C44A2A' }
+                : { backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' }}>
+              {e.status === 'in_progress' ? 'In Progress' : 'open'}
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm" style={{ color: 'var(--muted)' }}>
