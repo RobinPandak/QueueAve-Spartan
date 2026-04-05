@@ -65,9 +65,12 @@ export function HeatMap({ eventId, participants, metrics, cells, todayResults }:
                   <button
                     type="button"
                     onClick={() => setSelectedParticipant(p)}
-                    className="hover:text-[#FF6B4A] transition-colors cursor-pointer text-left"
+                    className="transition-all cursor-pointer text-left flex items-center gap-1.5 group"
                   >
-                    {p.name}
+                    <span className="text-[#FF6B4A] font-semibold group-hover:underline">{p.name}</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded-md font-medium opacity-70 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: 'rgba(255,107,74,.1)', color: '#FF6B4A' }}>
+                      + results
+                    </span>
                   </button>
                 </td>
                 {metrics.map(m => {
