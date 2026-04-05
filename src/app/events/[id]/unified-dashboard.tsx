@@ -363,7 +363,7 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
                       <div className="flex items-center gap-1">
                         {overallTrend !== 'none' && <TrendIcon className="w-3 h-3 flex-shrink-0" style={{ color: trendColor }} />}
                         <p className="text-xs truncate" style={{ color: 'var(--muted)' }}>
-                          {isPending ? 'Pending' : isInProgress ? (p.checked_in ? 'Arrived' : 'Not arrived') : isApproved ? 'Approved' : 'Rejected'}
+                          {isPending ? 'Pending' : (isInProgress || isOpen) ? (p.checked_in ? 'Arrived' : 'Not arrived') : isApproved ? 'Approved' : 'Rejected'}
                         </p>
                       </div>
                     </div>
@@ -381,7 +381,7 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
                             <SquareX className="w-3 h-3" />
                           </button>
                         </>
-                      ) : isInProgress && isApproved ? (
+                      ) : (isInProgress || isOpen) && isApproved ? (
                         <button onClick={() => handleToggleCheckIn(p.id, p.checked_in)} disabled={togglingId === p.id}
                           className="px-2 py-1 rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-40"
                           style={p.checked_in
