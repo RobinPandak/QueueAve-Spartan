@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { TrendingUp, TrendingDown, Minus, X, Sparkles } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, X, Sparkles, Copy, Check } from 'lucide-react'
 import { TREND_COLOR } from '@/lib/progress'
 import { saveAthleteResults } from '@/app/actions/sessions'
 import { getAthleteFeedback } from '@/app/actions/ai'
@@ -153,6 +153,7 @@ function AthleteDrawer({
   const [feedback, setFeedback] = useState<string | null>(null)
   const [feedbackLoading, setFeedbackLoading] = useState(false)
   const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false)
+  const [copied, setCopied] = useState(false)
   const hasExistingResults = initialResults.length > 0
 
   // Auto-show feedback button when opening with existing results
@@ -265,14 +266,29 @@ function AthleteDrawer({
               <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7C3AED' }}>AI Coach Feedback</p>
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--fg)' }}>{feedback}</p>
-            <button
-              type="button"
-              onClick={() => { setFeedback(null); if (saved) setTimeout(onSaved, 100) }}
-              className="text-xs cursor-pointer hover:opacity-70 transition-opacity"
-              style={{ color: 'var(--muted)' }}
-            >
-              Dismiss
-            </button>
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(feedback)
+                  setCopied(true)
+                  setTimeout(() => setCopied(false), 2000)
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all hover:opacity-80"
+                style={{ backgroundColor: copied ? 'rgba(0,191,165,.15)' : 'rgba(139,92,246,.15)', color: copied ? '#00896E' : '#7C3AED' }}
+              >
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? 'Copied!' : 'Copy feedback'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setFeedback(null); if (saved) setTimeout(onSaved, 100) }}
+                className="text-xs cursor-pointer hover:opacity-70 transition-opacity"
+                style={{ color: 'var(--muted)' }}
+              >
+                Dismiss
+              </button>
+            </div>
           </div>
         )}
 
