@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check, Clock, Users, BarChart2, Square } from 'lucide-react'
+import { ArrowLeft, Check, Clock, Users, BarChart2 } from 'lucide-react'
 import { toggleCheckIn } from '@/app/actions/participants'
 import { updateEventStatus } from '@/app/actions/events'
 import { useRealtimeParticipants } from './use-realtime-participants'
@@ -74,7 +74,6 @@ export function LiveView({ event, participants, groups }: Props) {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <p className="text-xs font-medium" style={{ color: 'var(--muted)' }}>Dashboard</p>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl font-extrabold leading-tight" style={{ color: 'var(--fg)' }}>{event.name}</h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
@@ -87,10 +86,10 @@ export function LiveView({ event, participants, groups }: Props) {
         </div>
         <button
           onClick={() => setShowEndConfirm(true)}
-          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all hover:opacity-80"
-          style={{ backgroundColor: 'rgba(229,72,77,.1)', color: '#E5484D', border: '1px solid rgba(229,72,77,.2)' }}
+          className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all hover:opacity-80"
+          style={{ backgroundColor: 'rgba(229,72,77,.1)', color: '#E5484D', border: '1px solid rgba(229,72,77,.25)' }}
         >
-          <Square className="w-3.5 h-3.5" /> End Event
+          End Event
         </button>
       </div>
 
