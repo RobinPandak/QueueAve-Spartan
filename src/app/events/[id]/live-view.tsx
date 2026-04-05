@@ -68,20 +68,21 @@ export function LiveView({ event, participants, groups }: Props) {
     <div className="space-y-5">
 
       {/* ── Header ── */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm mb-2 hover:opacity-70 transition-opacity" style={{ color: 'var(--muted)' }}>
-            <ArrowLeft className="w-3.5 h-3.5" /> Dashboard
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard" className="p-2.5 rounded-xl transition-colors hover:bg-[var(--subtle)]" style={{ color: 'var(--muted)' }}>
+            <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="font-display text-2xl sm:text-3xl font-extrabold" style={{ color: 'var(--fg)' }}>
-              {event.name}
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-              style={{ backgroundColor: 'rgba(255,107,74,.12)', color: '#C44A2A' }}>
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#FF6B4A' }} />
-              In Progress
-            </span>
+          <div>
+            <p className="text-xs font-medium" style={{ color: 'var(--muted)' }}>Dashboard</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl font-extrabold leading-tight" style={{ color: 'var(--fg)' }}>{event.name}</h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                style={{ backgroundColor: 'rgba(255,107,74,.12)', color: '#C44A2A' }}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#FF6B4A' }} />
+                In Progress
+              </span>
+            </div>
           </div>
         </div>
         <button
