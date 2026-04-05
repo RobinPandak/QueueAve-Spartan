@@ -8,7 +8,7 @@ import { saveAthleteResults } from '@/app/actions/sessions'
 import { getAthleteFeedback } from '@/app/actions/ai'
 
 export type Metric = { id: string; name: string; type: 'time' | 'count' | 'pass_fail' }
-export type Participant = { id: string; name: string }
+export type Participant = { id: string; name: string; checkedIn?: boolean }
 export type HeatCell = {
   participantId: string
   metricId: string
@@ -29,9 +29,10 @@ type Props = {
   metrics: Metric[]
   cells: HeatCell[]
   todayResults: TodayResult[]
+  allowResults?: boolean // false = event not in_progress, block result entry
 }
 
-export function HeatMap({ eventId, participants, metrics, cells, todayResults }: Props) {
+export function HeatMap({ eventId, participants, metrics, cells, todayResults, allowResults = true }: Props) {
   const router = useRouter()
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null)
 
@@ -63,16 +64,32 @@ export function HeatMap({ eventId, participants, metrics, cells, todayResults }:
             {participants.map((p, pi) => (
               <tr key={p.id} style={{ borderTop: pi > 0 ? '1px solid var(--border)' : undefined }}>
                 <td className="px-4 py-3 font-medium whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedParticipant(p)}
-                    className="transition-all cursor-pointer text-left flex items-center gap-1.5 group"
-                  >
-                    <span className="text-[#FF6B4A] font-semibold group-hover:underline">{p.name}</span>
-                    <span className="text-xs px-1.5 py-0.5 rounded-md font-medium opacity-70 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: 'rgba(255,107,74,.1)', color: '#FF6B4A' }}>
-                      + results
-                    </span>
-                  </button>
+                  {(() => {
+                    const canEnter = allowResults && p.checkedIn !== false
+                    const reason = !allowResults ? 'Event not in progress' : 'Athlete not arrived'
+                    if (!canEnter) {
+                      return (
+                        <div className="flex items-center gap-1.5" title={reason}>
+                          <span className="font-semibold" style={{ color: 'var(--muted)' }}>{p.name}</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded-md font-medium" style={{ backgroundColor: 'var(--subtle)', color: 'var(--muted)' }}>
+                            {!allowResults ? 'not active' : 'not arrived'}
+                          </span>
+                        </div>
+                      )
+                    }
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedParticipant(p)}
+                        className="transition-all cursor-pointer text-left flex items-center gap-1.5 group"
+                      >
+                        <span className="text-[#FF6B4A] font-semibold group-hover:underline">{p.name}</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded-md font-medium opacity-70 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: 'rgba(255,107,74,.1)', color: '#FF6B4A' }}>
+                          + results
+                        </span>
+                      </button>
+                    )
+                  })()}
                 </td>
                 {metrics.map(m => {
                   const cell = getCell(p.id, m.id)

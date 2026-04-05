@@ -7,7 +7,7 @@ import {
   ArrowLeft, Calendar, MapPin, Users, Copy, Check, Share2,
   Send, Play, UserPlus, UserMinus, Download, ChevronDown,
   TrendingUp, TrendingDown, Minus, Clock, SquareX,
-  AlertTriangle, Zap,
+  AlertTriangle, Zap, RefreshCw,
 } from 'lucide-react'
 import { TREND_COLOR } from '@/lib/progress'
 import {
@@ -87,6 +87,7 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
   const [startError, setStartError] = useState<string | null>(null)
   const [showEndConfirm, setShowEndConfirm] = useState(false)
   const [isEnding, setIsEnding] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Add player
   const [showAddPlayer, setShowAddPlayer] = useState(false)
@@ -114,6 +115,7 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
   const badge = STATUS_BADGE[event.status as keyof typeof STATUS_BADGE] ?? STATUS_BADGE.draft
   const isOpen = event.status === 'open'
   const isInProgress = event.status === 'in_progress'
+  const isCompleted = event.status === 'completed'
   const approved = participants.filter(p => p.status === 'approved')
   const pending = participants.filter(p => !p.status || p.status === 'pending')
   const arrived = approved.filter(p => p.checked_in)
@@ -172,7 +174,17 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
     })
   }
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    router.refresh()
+    setTimeout(() => setIsRefreshing(false), 800)
+  }
+
   const handleStartEvent = async () => {
+    if (approved.length === 0) {
+      setStartError('No approved athletes. Approve at least one athlete before starting.')
+      return
+    }
     setIsStarting(true)
     setStartError(null)
     const result = await updateEventStatus(event.id, 'in_progress')
@@ -253,6 +265,13 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
 
         {/* Header actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          <button onClick={handleRefresh} disabled={isRefreshing}
+            className="p-2 rounded-xl cursor-pointer hover:opacity-70 transition-all disabled:opacity-40"
+            style={{ color: 'var(--muted)', border: '1px solid var(--border)' }}
+            title="Refresh">
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </button>
+
           {isOpen && (
             <button onClick={handleStartEvent} disabled={isStarting}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white cursor-pointer hover:opacity-90 disabled:opacity-50"
@@ -319,20 +338,22 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
                 </span>
               )}
             </h2>
-            <div className="flex items-center gap-1.5">
-              {pending.length > 0 && (
-                <button onClick={handleApproveAll}
-                  className="text-xs font-medium px-2 py-1 rounded-lg cursor-pointer hover:opacity-80"
-                  style={{ backgroundColor: 'rgba(0,191,165,.1)', color: '#00896E' }}>
-                  Approve all
+            {!isCompleted && (
+              <div className="flex items-center gap-1.5">
+                {pending.length > 0 && (
+                  <button onClick={handleApproveAll}
+                    className="text-xs font-medium px-2 py-1 rounded-lg cursor-pointer hover:opacity-80"
+                    style={{ backgroundColor: 'rgba(0,191,165,.1)', color: '#00896E' }}>
+                    Approve all
+                  </button>
+                )}
+                <button onClick={() => { setShowAddPlayer(true); setAddError(null) }}
+                  className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg cursor-pointer hover:opacity-80"
+                  style={{ backgroundColor: 'rgba(255,107,74,.1)', color: '#FF6B4A' }}>
+                  <UserPlus className="w-3 h-3" /> Add
                 </button>
-              )}
-              <button onClick={() => { setShowAddPlayer(true); setAddError(null) }}
-                className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg cursor-pointer hover:opacity-80"
-                style={{ backgroundColor: 'rgba(255,107,74,.1)', color: '#FF6B4A' }}>
-                <UserPlus className="w-3 h-3" /> Add
-              </button>
-            </div>
+              </div>
+            )}
           </div>
 
           {participants.length === 0 ? (
@@ -368,7 +389,7 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
                       </div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      {isPending ? (
+                      {!isCompleted && isPending ? (
                         <>
                           <button onClick={() => handleApprove(p.id)} disabled={actionId === p.id}
                             className="px-2 py-1 rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-50"
@@ -381,7 +402,7 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
                             <SquareX className="w-3 h-3" />
                           </button>
                         </>
-                      ) : (isInProgress || isOpen) && isApproved ? (
+                      ) : !isCompleted && (isInProgress || isOpen) && isApproved ? (
                         <button onClick={() => handleToggleCheckIn(p.id, p.checked_in)} disabled={togglingId === p.id}
                           className="px-2 py-1 rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-40"
                           style={p.checked_in
@@ -467,10 +488,11 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
             ) : (
               <HeatMap
                 eventId={event.id}
-                participants={approved.map(p => ({ id: p.id, name: p.name }))}
+                participants={approved.map(p => ({ id: p.id, name: p.name, checkedIn: p.checked_in }))}
                 metrics={metrics}
                 cells={cells}
                 todayResults={todayResults}
+                allowResults={isInProgress}
               />
             )}
             {metrics.length > 0 && approved.length > 0 && (
