@@ -1,10 +1,15 @@
 'use server'
 
-import Anthropic from '@anthropic-ai/sdk'
+import { AnthropicFoundry } from '@anthropic-ai/foundry-sdk'
 import { createClient } from '@/lib/supabase/server'
 import { parseTimeToSeconds, secondsToMmss } from '@/lib/progress'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+function getClient() {
+  return new AnthropicFoundry({
+    apiKey: process.env.AZURE_FOUNDRY_API_KEY!,
+    resource: process.env.AZURE_FOUNDRY_RESOURCE!,
+  })
+}
 
 export async function getAthleteFeedback(
   participantId: string,
@@ -87,8 +92,9 @@ Write a brief coaching note (2-3 sentences max) for the coach to share with this
 
 Keep it simple, practical, and encouraging. Plain text only, no bullet points or formatting.`
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const model = process.env.AZURE_FOUNDRY_MODEL || 'claude-sonnet-4-5'
+    const message = await getClient().messages.create({
+      model,
       max_tokens: 200,
       messages: [{ role: 'user', content: prompt }],
     })
