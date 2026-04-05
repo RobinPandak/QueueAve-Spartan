@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { getTrend, parseTimeToSeconds, secondsToMmss, TREND_COLOR, type MetricResult, type MetricType } from '@/lib/progress'
 import Link from 'next/link'
-import { TrendingUp, Zap, AlertTriangle } from 'lucide-react'
+import { TrendingUp, Zap, AlertTriangle, ArrowLeft } from 'lucide-react'
 import { HeatMap, type HeatCell, type TodayResult } from './heat-map'
 
 export default async function ProgressPage({ params }: { params: Promise<{ id: string }> }) {
@@ -83,9 +83,14 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <Link href={`/events/${id}`} className="text-sm cursor-pointer" style={{ color: 'var(--muted)' }}>← {event.name}</Link>
-        <h2 className="text-2xl font-extrabold mt-1">Progress Dashboard</h2>
+      <div className="flex items-center gap-3">
+        <Link href={`/events/${id}`} className="p-2.5 rounded-xl transition-colors hover:bg-[var(--subtle)]" style={{ color: 'var(--muted)' }}>
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <div>
+          <p className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{event.name}</p>
+          <h2 className="text-2xl font-extrabold leading-tight">Progress Dashboard</h2>
+        </div>
       </div>
 
       {/* ── Summary cards (Option D) ── */}
