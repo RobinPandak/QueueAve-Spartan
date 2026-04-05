@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { TrendingUp, TrendingDown, Minus, X } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, X, Pencil } from 'lucide-react'
 import { TREND_COLOR } from '@/lib/progress'
 import { saveAthleteResults } from '@/app/actions/sessions'
 
@@ -67,10 +67,8 @@ export function HeatMap({ eventId, participants, metrics, cells, todayResults }:
                     onClick={() => setSelectedParticipant(p)}
                     className="transition-all cursor-pointer text-left flex items-center gap-1.5 group"
                   >
-                    <span className="text-[#FF6B4A] font-semibold group-hover:underline">{p.name}</span>
-                    <span className="text-xs px-1.5 py-0.5 rounded-md font-medium opacity-70 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: 'rgba(255,107,74,.1)', color: '#FF6B4A' }}>
-                      + results
-                    </span>
+                    <span className="group-hover:text-[#FF6B4A] transition-colors" style={{ color: 'var(--fg)' }}>{p.name}</span>
+                    <Pencil className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--muted)' }} />
                   </button>
                 </td>
                 {metrics.map(m => {
