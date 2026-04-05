@@ -13,12 +13,10 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     { data: event },
     { data: rawParticipants },
     { data: groups },
-    { data: sessions },
   ] = await Promise.all([
     supabase.from('spartan_events').select('id, name, status, date, venue, organizer_id').eq('id', id).single(),
     supabase.from('spartan_participants').select('id, checked_in, group_id, status, player_id, spartan_players(id, name, email)').eq('event_id', id),
     supabase.from('spartan_groups').select('id, name').eq('event_id', id).order('sort_order'),
-    supabase.from('spartan_sessions').select('id').eq('event_id', id),
   ])
 
   const participants = (rawParticipants ?? []).map(p => {
@@ -29,7 +27,6 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
   if (!event) notFound()
 
   const isOwner = user?.id === event.organizer_id
-  const sessionCount = sessions?.length ?? 0
 
   if (event.status === 'in_progress' && isOwner) {
     return (
@@ -37,7 +34,6 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
         event={event}
         participants={participants}
         groups={groups ?? []}
-        sessionCount={sessionCount}
       />
     )
   }
@@ -47,7 +43,6 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
       event={event}
       participants={participants}
       groups={groups ?? []}
-      sessionCount={sessionCount}
       isOwner={isOwner}
     />
   )

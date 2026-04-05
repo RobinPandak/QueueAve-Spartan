@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft, Calendar, MapPin, Users, Copy, Check, Share2,
-  ClipboardList, BarChart2, ChevronDown, ChevronUp, Download,
+  BarChart2, ChevronDown, ChevronUp, Download,
   Send, Play, UserPlus, UserMinus, X,
 } from 'lucide-react'
 import {
@@ -39,7 +39,6 @@ type Props = {
   }
   participants: Participant[]
   groups: Group[]
-  sessionCount: number
   isOwner: boolean
 }
 
@@ -71,7 +70,7 @@ function ParticipantAvatar({ name }: { name: string }) {
 const inputCls = 'w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B4A]/30'
 const inputSty = { backgroundColor: 'var(--subtle)', border: '1px solid var(--border)', color: 'var(--fg)' } as const
 
-export function EventDashboard({ event, participants, groups, sessionCount, isOwner }: Props) {
+export function EventDashboard({ event, participants, groups, isOwner }: Props) {
   const router = useRouter()
   const [copied, setCopied] = useState(false)
   const [showAll, setShowAll] = useState(false)
@@ -364,18 +363,7 @@ export function EventDashboard({ event, participants, groups, sessionCount, isOw
       )}
 
       {/* ── Quick action cards ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <Link href={`/events/${event.id}/sessions`}
-          className="flex items-center gap-3 p-4 rounded-2xl border transition-all hover:-translate-y-0.5 hover:shadow-sm"
-          style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255,107,74,.1)', color: '#FF6B4A' }}>
-            <ClipboardList className="w-4.5 h-4.5" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Sessions</p>
-            <p className="text-xs" style={{ color: 'var(--muted)' }}>{sessionCount} recorded</p>
-          </div>
-        </Link>
+      <div className="grid grid-cols-2 gap-3">
 
         <Link href={`/events/${event.id}/groups`}
           className="flex items-center gap-3 p-4 rounded-2xl border transition-all hover:-translate-y-0.5 hover:shadow-sm"

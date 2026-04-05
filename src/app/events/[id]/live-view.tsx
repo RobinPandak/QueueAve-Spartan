@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check, Clock, Users, ClipboardList, BarChart2, Square } from 'lucide-react'
+import { ArrowLeft, Check, Clock, Users, BarChart2, Square } from 'lucide-react'
 import { toggleCheckIn } from '@/app/actions/participants'
 import { updateEventStatus } from '@/app/actions/events'
 import { useRealtimeParticipants } from './use-realtime-participants'
@@ -22,7 +22,6 @@ type Props = {
   event: { id: string; name: string; date: string | null; venue: string | null }
   participants: Participant[]
   groups: Group[]
-  sessionCount: number
 }
 
 function Avatar({ name, small }: { name: string; small?: boolean }) {
@@ -36,7 +35,7 @@ function Avatar({ name, small }: { name: string; small?: boolean }) {
   )
 }
 
-export function LiveView({ event, participants, groups, sessionCount }: Props) {
+export function LiveView({ event, participants, groups }: Props) {
   const router = useRouter()
   const [togglingId, setTogglingId] = useState<string | null>(null)
   const [, startToggle] = useTransition()
@@ -128,18 +127,6 @@ export function LiveView({ event, participants, groups, sessionCount }: Props) {
 
       {/* ── Quick actions ── */}
       <div className="grid grid-cols-2 gap-3">
-        <Link href={`/events/${event.id}/sessions/new`}
-          className="flex items-center gap-3 p-4 rounded-2xl border transition-all hover:-translate-y-0.5 hover:shadow-sm"
-          style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255,107,74,.1)', color: '#FF6B4A' }}>
-            <ClipboardList className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Record Session</p>
-            <p className="text-xs" style={{ color: 'var(--muted)' }}>{sessionCount} recorded</p>
-          </div>
-        </Link>
-
         <Link href={`/events/${event.id}/progress`}
           className="flex items-center gap-3 p-4 rounded-2xl border transition-all hover:-translate-y-0.5 hover:shadow-sm"
           style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
