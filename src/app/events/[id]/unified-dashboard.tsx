@@ -253,43 +253,6 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
 
         {/* Header actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Link href={`/events/${event.id}/edit`}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--muted)', border: '1px solid var(--border)' }}>
-            Edit
-          </Link>
-
-          {/* Export */}
-          <div className="relative">
-            <button onClick={() => setShowExportMenu(v => !v)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer hover:opacity-80"
-              style={{ color: 'var(--muted)', border: '1px solid var(--border)' }}>
-              <Download className="w-3.5 h-3.5" /><ChevronDown className="w-3 h-3" />
-            </button>
-            {showExportMenu && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
-                <div className="absolute right-0 top-full mt-1.5 z-20 w-44 rounded-xl shadow-lg overflow-hidden"
-                  style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
-                  <button className="w-full text-left px-4 py-2.5 text-sm hover:opacity-70" style={{ color: 'var(--fg)' }}
-                    onClick={() => { setShowExportMenu(false); downloadParticipantsCsv(participants, groups, event.name) }}>
-                    All athletes (CSV)
-                  </button>
-                  <button className="w-full text-left px-4 py-2.5 text-sm hover:opacity-70 border-t" style={{ color: 'var(--fg)', borderColor: 'var(--border)' }}
-                    onClick={() => { setShowExportMenu(false); downloadParticipantsCsv(approved, groups, event.name + '-approved') }}>
-                    Approved only (CSV)
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-
-          <button onClick={() => { setGuideSent(null); setShowGuide(true) }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer hover:opacity-80"
-            style={{ color: 'var(--muted)', border: '1px solid var(--border)' }}>
-            <Send className="w-3.5 h-3.5" /> Guide
-          </button>
-
           {isOpen && (
             <button onClick={handleStartEvent} disabled={isStarting}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white cursor-pointer hover:opacity-90 disabled:opacity-50"
@@ -325,21 +288,6 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
         ))}
       </div>
 
-      {/* ── Join link (open/in_progress) ── */}
-      {(isOpen || isInProgress) && (
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border" style={{ backgroundColor: 'var(--subtle)', borderColor: 'var(--border)' }}>
-          <p className="flex-1 text-xs font-mono truncate" style={{ color: 'var(--fg)' }}>{joinUrl}</p>
-          <button onClick={handleCopy}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex-shrink-0"
-            style={copied ? { backgroundColor: 'rgba(0,191,165,.12)', color: '#00896E' } : { backgroundColor: 'var(--card)', color: 'var(--muted)', border: '1px solid var(--border)' }}>
-            {copied ? <><Check className="w-3 h-3" /> Copied!</> : <><Copy className="w-3 h-3" /> Copy</>}
-          </button>
-          <button onClick={handleShare} className="p-1.5 rounded-lg cursor-pointer hover:opacity-70"
-            style={{ backgroundColor: 'var(--card)', color: '#FF6B4A', border: '1px solid var(--border)' }}>
-            <Share2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
 
       {/* ── Arrival progress bar (in_progress) ── */}
       {isInProgress && approved.length > 0 && (
@@ -362,6 +310,9 @@ export function UnifiedDashboard({ event, participants, groups, metrics, cells, 
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--muted)' }}>
               <Users className="w-3.5 h-3.5" /> Athletes
+              <span className="px-1.5 py-0.5 rounded-full font-bold" style={{ backgroundColor: 'var(--subtle)', color: 'var(--muted)' }}>
+                {participants.length}
+              </span>
               {pending.length > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full font-bold" style={{ backgroundColor: 'rgba(255,184,0,.15)', color: '#9B7800' }}>
                   {pending.length} pending
