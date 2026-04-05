@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { TrendingUp, TrendingDown, Minus, X } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, X, Sparkles } from 'lucide-react'
 import { TREND_COLOR } from '@/lib/progress'
 import { saveAthleteResults } from '@/app/actions/sessions'
+import { getAthleteFeedback } from '@/app/actions/ai'
 
 export type Metric = { id: string; name: string; type: 'time' | 'count' | 'pass_fail' }
 export type Participant = { id: string; name: string }
@@ -149,6 +150,24 @@ function AthleteDrawer({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+  const [feedback, setFeedback] = useState<string | null>(null)
+  const [feedbackLoading, setFeedbackLoading] = useState(false)
+  const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false)
+  const hasExistingResults = initialResults.length > 0
+
+  // Auto-show feedback button when opening with existing results
+  useEffect(() => {
+    if (hasExistingResults) setShowFeedbackPrompt(false)
+  }, [hasExistingResults])
+
+  async function loadFeedback() {
+    setFeedbackLoading(true)
+    setShowFeedbackPrompt(false)
+    const result = await getAthleteFeedback(participant.id, eventId)
+    setFeedbackLoading(false)
+    if ('feedback' in result) setFeedback(result.feedback)
+    else setFeedback(`Could not load feedback: ${result.error}`)
+  }
 
   function setValue(metricId: string, val: string | boolean | null) {
     setValues(v => ({ ...v, [metricId]: val }))
@@ -167,7 +186,7 @@ function AthleteDrawer({
         setError(result.error)
       } else {
         setSaved(true)
-        setTimeout(onSaved, 800)
+        setShowFeedbackPrompt(true)
       }
     })
   }
@@ -191,6 +210,72 @@ function AthleteDrawer({
       </div>
 
       <div className="flex-1 px-5 py-5 space-y-4 overflow-y-auto">
+
+        {/* AI feedback button — shown if athlete has existing results */}
+        {hasExistingResults && !feedback && !feedbackLoading && !showFeedbackPrompt && (
+          <button
+            type="button"
+            onClick={loadFeedback}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all hover:opacity-80 cursor-pointer"
+            style={{ backgroundColor: 'rgba(139,92,246,.1)', color: '#7C3AED', border: '1px solid rgba(139,92,246,.2)' }}
+          >
+            <Sparkles className="w-4 h-4" />
+            Get AI coaching feedback
+          </button>
+        )}
+
+        {/* After save: prompt to get updated feedback */}
+        {showFeedbackPrompt && !feedback && (
+          <div className="rounded-xl p-3 space-y-2" style={{ backgroundColor: 'rgba(139,92,246,.08)', border: '1px solid rgba(139,92,246,.2)' }}>
+            <p className="text-xs font-medium" style={{ color: '#7C3AED' }}>Results saved. Want AI coaching feedback?</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={loadFeedback}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all hover:opacity-80"
+                style={{ backgroundColor: '#7C3AED', color: 'white' }}
+              >
+                <Sparkles className="w-3.5 h-3.5" /> Yes, show me
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowFeedbackPrompt(false); setTimeout(onSaved, 100) }}
+                className="flex-1 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all hover:opacity-70"
+                style={{ backgroundColor: 'var(--subtle)', color: 'var(--muted)' }}
+              >
+                No thanks
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Loading state */}
+        {feedbackLoading && (
+          <div className="rounded-xl p-4 flex items-center gap-3" style={{ backgroundColor: 'rgba(139,92,246,.08)', border: '1px solid rgba(139,92,246,.2)' }}>
+            <span className="w-4 h-4 border-2 rounded-full animate-spin flex-shrink-0" style={{ borderColor: 'rgba(124,58,237,.3)', borderTopColor: '#7C3AED' }} />
+            <p className="text-xs" style={{ color: '#7C3AED' }}>Analyzing performance...</p>
+          </div>
+        )}
+
+        {/* Feedback result */}
+        {feedback && (
+          <div className="rounded-xl p-4 space-y-2" style={{ backgroundColor: 'rgba(139,92,246,.08)', border: '1px solid rgba(139,92,246,.2)' }}>
+            <div className="flex items-center gap-1.5 mb-1">
+              <Sparkles className="w-3.5 h-3.5" style={{ color: '#7C3AED' }} />
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7C3AED' }}>AI Coach Feedback</p>
+            </div>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--fg)' }}>{feedback}</p>
+            <button
+              type="button"
+              onClick={() => { setFeedback(null); if (saved) setTimeout(onSaved, 100) }}
+              className="text-xs cursor-pointer hover:opacity-70 transition-opacity"
+              style={{ color: 'var(--muted)' }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {metrics.map(m => (
           <div key={m.id}>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--fg)' }}>{m.name}</label>
@@ -240,6 +325,16 @@ function AthleteDrawer({
         >
           {saved ? '✓ Saved' : isPending ? 'Saving...' : 'Save Results'}
         </button>
+        {saved && !showFeedbackPrompt && !feedback && (
+          <button
+            type="button"
+            onClick={onSaved}
+            className="w-full mt-2 py-2 rounded-full text-xs font-medium cursor-pointer hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--muted)' }}
+          >
+            Close
+          </button>
+        )}
       </div>
     </div>
   )
