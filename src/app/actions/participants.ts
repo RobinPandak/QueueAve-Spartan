@@ -223,12 +223,29 @@ export async function rejectParticipant(participantId: string, eventId: string) 
   revalidatePath(`/events/${eventId}`)
 }
 
+const AVATAR_MAX_BYTES = 5 * 1024 * 1024
+const AVATAR_MIME_EXT: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/webp': 'webp',
+}
+
 export async function uploadAvatar(playerId: string, formData: FormData): Promise<{ error: string } | { url: string }> {
   try {
+    // Only an authenticated coach may set avatars. This closes the
+    // unauthenticated overwrite-by-UUID vector on a public bucket.
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'You must be signed in to upload a photo.' }
+
     const file = formData.get('file') as File | null
     if (!file || file.size === 0) return { error: 'No file provided.' }
+    if (file.size > AVATAR_MAX_BYTES) return { error: 'Image must be 5 MB or smaller.' }
+    const ext = AVATAR_MIME_EXT[file.type]
+    if (!ext) return { error: 'Only PNG, JPEG, or WebP images are allowed.' }
+
     const service = serviceClient()
-    const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
     const path = `avatars/${playerId}.${ext}`
     const bytes = await file.arrayBuffer()
     const { error: uploadError } = await service.storage
