@@ -296,7 +296,7 @@ export default function LandingClient({ user }: { user: boolean }) {
             {!user && (
               <>
                 <Link href="/explore" className="px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-70" style={{ color: 'var(--muted)' }}>Explore</Link>
-                <Link href="/login" className="px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-70" style={{ color: 'var(--muted)' }}>Player Lookup</Link>
+                <Link href="/lookup" className="px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-70" style={{ color: 'var(--muted)' }}>Player Lookup</Link>
               </>
             )}
             <button
@@ -347,7 +347,7 @@ export default function LandingClient({ user }: { user: boolean }) {
             {!user && (
               <>
                 <Link href="/explore" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors" style={{ color: 'var(--muted)' }}>Explore</Link>
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors" style={{ color: 'var(--muted)' }}>Player Lookup</Link>
+                <Link href="/lookup" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors" style={{ color: 'var(--muted)' }}>Player Lookup</Link>
               </>
             )}
             <button
