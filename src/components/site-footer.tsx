@@ -9,7 +9,7 @@ export function SiteFooter() {
             <p className="text-xs opacity-60" style={{ color: 'var(--muted)' }}>© 2026 QueueAve Information Technology Services</p>
             <div className="flex items-center gap-4 text-xs opacity-60" style={{ color: 'var(--muted)' }}>
               <a href="/privacy" className="transition-opacity hover:opacity-80">Privacy</a>
-              <a href="#" className="transition-opacity hover:opacity-80">Terms</a>
+              <a href="/terms" className="transition-opacity hover:opacity-80">Terms</a>
             </div>
           </div>
           <button
