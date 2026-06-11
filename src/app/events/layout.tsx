@@ -13,7 +13,8 @@ export default async function EventsLayout({ children }: { children: React.React
       <nav className="sticky top-0 z-10 border-b" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
         <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
-            <img src="/logo.svg" alt="Spartan" width="32" height="32" />
+            <img src="/brand/qa-icon-v5-trimmed.png" alt="Spartan" width="36" height="22" className="object-contain dark:hidden" />
+            <img src="/brand/qa-icon-dark-v5-trimmed.png" alt="Spartan" width="36" height="22" className="object-contain hidden dark:block" />
             <span className="font-extrabold text-lg" style={{ fontFamily: 'var(--font-bricolage)' }}>Spartan</span>
           </Link>
           <form action={logout}>

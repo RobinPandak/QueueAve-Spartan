@@ -20,11 +20,18 @@ export default async function LoginPage({
         }}
       >
         <img
-          src="/logo.svg"
+          src="/brand/qa-icon-v5-trimmed.png"
           alt="Spartan"
-          width="56"
-          height="56"
-          className="mx-auto mb-4"
+          width="64"
+          height="38"
+          className="mx-auto mb-4 object-contain dark:hidden"
+        />
+        <img
+          src="/brand/qa-icon-dark-v5-trimmed.png"
+          alt="Spartan"
+          width="64"
+          height="38"
+          className="mx-auto mb-4 object-contain hidden dark:block"
         />
         <h1
           className="text-2xl font-extrabold mb-1"

@@ -9,7 +9,6 @@ const jetbrains = JetBrains_Mono({ variable: '--font-jetbrains', subsets: ['lati
 export const metadata: Metadata = {
   title: 'Spartan by QueueAve',
   description: 'Training session management for obstacle course coaches',
-  icons: { icon: '/logo.svg' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

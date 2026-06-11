@@ -40,7 +40,7 @@ export async function sendRegistrationEmail({
 
         <!-- Logo -->
         <tr><td align="center" style="padding-bottom:24px;">
-          <img src="https://spartan.queueave.com/logo.svg" width="40" height="40" alt="Spartan" style="display:block;margin:0 auto 8px;" />
+          <img src="https://spartan.queueave.com/brand/qa-icon-v5-trimmed.png" width="56" height="34" alt="Spartan" style="display:block;margin:0 auto 8px;" />
           <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#FF6B4A;">Spartan by QueueAve</p>
         </td></tr>
 
@@ -155,7 +155,7 @@ export async function sendEventGuideEmail({
     <tr><td align="center">
       <table width="100%" style="max-width:480px;" cellpadding="0" cellspacing="0">
         <tr><td align="center" style="padding-bottom:24px;">
-          <img src="https://spartan.queueave.com/logo.svg" width="40" height="40" alt="Spartan" style="display:block;margin:0 auto 8px;" />
+          <img src="https://spartan.queueave.com/brand/qa-icon-v5-trimmed.png" width="56" height="34" alt="Spartan" style="display:block;margin:0 auto 8px;" />
           <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#FF6B4A;">Spartan by QueueAve</p>
         </td></tr>
         <tr><td style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07);">

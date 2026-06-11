@@ -31,7 +31,8 @@ export default async function LeaderboardPage({ params }: { params: Promise<{ id
   return (
     <div className="min-h-screen px-4 py-8 max-w-3xl mx-auto" style={{ backgroundColor: 'var(--bg)' }}>
       <div className="text-center mb-8">
-        <img src="/logo.svg" alt="Spartan" width="48" height="48" className="mx-auto mb-3" />
+        <img src="/brand/qa-icon-v5-trimmed.png" alt="Spartan" width="56" height="34" className="mx-auto mb-3 object-contain dark:hidden" />
+        <img src="/brand/qa-icon-dark-v5-trimmed.png" alt="Spartan" width="56" height="34" className="mx-auto mb-3 object-contain hidden dark:block" />
         <h1 className="text-2xl font-extrabold">{event.name}</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>Leaderboard</p>
       </div>

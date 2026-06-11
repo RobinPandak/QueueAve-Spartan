@@ -61,7 +61,8 @@ export function ParticipantProfile({ participantId: _participantId, playerId, na
       const canvas = document.createElement('canvas')
       const W = 480
       const QR_SIZE = 280
-      const LOGO_SIZE = 48
+      const LOGO_W = 60
+      const LOGO_H = 36
       canvas.width = W
       canvas.height = 460
       const ctx = canvas.getContext('2d')!
@@ -73,8 +74,8 @@ export function ParticipantProfile({ participantId: _participantId, playerId, na
 
       const logo = new Image()
       logo.crossOrigin = 'anonymous'
-      await new Promise<void>(res => { logo.onload = () => res(); logo.onerror = () => res(); logo.src = '/logo.svg' })
-      ctx.drawImage(logo, (W - LOGO_SIZE) / 2, 24, LOGO_SIZE, LOGO_SIZE)
+      await new Promise<void>(res => { logo.onload = () => res(); logo.onerror = () => res(); logo.src = '/brand/qa-icon-v5-trimmed.png' })
+      ctx.drawImage(logo, (W - LOGO_W) / 2, 30, LOGO_W, LOGO_H)
 
       ctx.fillStyle = '#FF6B4A'
       ctx.font = '700 11px -apple-system, sans-serif'
