@@ -68,6 +68,18 @@ function FloatingShapes() {
   )
 }
 
+/* ─── Marquee strip ─── */
+const MARQUEE_ITEMS = [
+  'Training groups',
+  'Session templates',
+  'Progress charts',
+  'Trend detection',
+  'QR join links',
+  'Live leaderboards',
+  'No app needed',
+  'Free forever',
+]
+
 /* ─── Rotating word ─── */
 const WORDS = ['tracked', 'measured', 'simplified', 'optimized']
 
@@ -412,6 +424,17 @@ export default function LandingClient({ user }: { user: boolean }) {
           </div>
         </div>
       </section>
+
+      {/* ─── Marquee ─── */}
+      <div className="overflow-hidden border-y py-5" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--subtle)' }}>
+        <div className="flex animate-marquee whitespace-nowrap" style={{ '--marquee-duration': '40s' } as React.CSSProperties}>
+          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+            <span key={i} className="mx-8 text-sm font-semibold uppercase tracking-[0.2em] shrink-0 opacity-50" style={{ color: 'var(--muted)' }}>
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* ─── How It Works ─── */}
       <section id="how-it-works" className="py-24 sm:py-32 px-6">
