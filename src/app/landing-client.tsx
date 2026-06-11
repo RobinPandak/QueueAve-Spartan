@@ -76,8 +76,7 @@ const MARQUEE_ITEMS = [
   'Trend detection',
   'QR join links',
   'Live leaderboards',
-  'No app needed',
-  'Free forever',
+  'Mobile app coming soon',
 ]
 
 /* ─── Rotating word ─── */
