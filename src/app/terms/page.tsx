@@ -189,7 +189,7 @@ export default function TermsPage() {
         </h1>
         <p className="mt-3 font-semibold" style={{ color: 'var(--fg)' }}>QueueAve Information Technology Services</p>
         <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
-          Effective Date: June 12, 2026 · Version 1.0 · queueave.com · contact@queueave.com
+          Effective Date: April 1, 2026 · Version 1.0 · queueave.com · contact@queueave.com
         </p>
         <p className="mt-6 leading-relaxed" style={{ color: 'var(--muted)' }}>
           Welcome to QueueAve. These Terms of Service (&quot;Terms&quot;) govern your use of the QueueAve sports session management platform at queueave.com and its subdomains, including badminton.queueave.com and spartan.queueave.com (together, the &quot;Platform&quot;). By using the Platform, you agree to these Terms and to our Privacy Policy.
